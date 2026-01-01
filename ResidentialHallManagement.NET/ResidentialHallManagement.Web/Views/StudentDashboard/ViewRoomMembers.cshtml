@@ -1,0 +1,451 @@
+@model List<ResidentialHallManagement.Core.Entities.Student>
+
+@{
+    ViewData["Title"] = "My Roommates";
+    var roomIdentity = ViewBag.RoomIdentity as string;
+    var hallId = ViewBag.HallId as int?;
+    var hallName = ViewBag.HallName as string;
+    var roomData = ViewBag.RoomData as ResidentialHallManagement.Core.Entities.Room;
+    var currentStudent = ViewBag.CurrentStudent as ResidentialHallManagement.Core.Entities.Student;
+    var currentAssignment = ViewBag.CurrentAssignment as ResidentialHallManagement.Core.Entities.RoomAssignment;
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .room-info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: -3rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .room-stat {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .room-stat-icon {
+        font-size: 2rem;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .room-stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .room-stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .current-student-card {
+        border: 3px solid #667eea;
+        background: linear-gradient(135deg, #f8f9fe 0%, #eef1ff 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .current-student-card::before {
+        content: "YOU";
+        position: absolute;
+        top: 10px;
+        right: -25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 40px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transform: rotate(45deg);
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    .student-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+        height: 100%;
+    }
+
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .roommate-card {
+        background: white;
+    }
+
+    .avatar-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .avatar-secondary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .avatar-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .avatar-warning {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .info-row {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .contact-link {
+        color: #667eea;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .contact-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .blood-badge {
+        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #667eea;
+        display: inline-block;
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">
+                    <i class="bi bi-house-door-fill"></i> My Room & Roommates
+                </h1>
+                <p class="mb-0 opacity-75" style="font-size: 1.1rem;">
+                    Room @roomIdentity • @hallName
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                @if (currentAssignment != null)
+                {
+                    <p class="mb-1"><strong>Assigned:</strong> @currentAssignment.AssignmentDate.ToString("MMM dd, yyyy")
+                    </p>
+                    <span class="badge bg-success" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-check-circle-fill"></i> Active
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Statistics Card -->
+    @if (roomData != null)
+    {
+        <div class="room-info-card">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="room-stat">
+                        <div class="room-stat-icon"><i class="bi bi-door-open"></i></div>
+                        <div class="room-stat-value">@roomIdentity</div>
+                        <div class="room-stat-label">Room Number</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="room-stat">
+                        <div class="room-stat-icon"><i class="bi bi-people"></i></div>
+                        <div class="room-stat-value">@(Model.Count + 1)/@roomData.RoomCapacity</div>
+                        <div class="room-stat-label">Occupancy</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="room-stat">
+                        <div class="room-stat-icon"><i class="bi bi-cube"></i></div>
+                        <div class="room-stat-value">@(roomData.Block ?? "N/A")</div>
+                        <div class="room-stat-label">Block</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="room-stat">
+                        <div class="room-stat-icon"><i class="bi bi-layers"></i></div>
+                        <div class="room-stat-value">Floor @roomData.Floor</div>
+                        <div class="room-stat-label">Location</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Current Student Section -->
+    @if (currentStudent != null)
+    {
+        <div class="mt-5">
+            <h3 class="section-title">
+                <i class="bi bi-person-circle"></i> My Information
+            </h3>
+            <div class="row mt-4">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card student-card current-student-card shadow-lg">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="avatar-circle avatar-primary">
+                                        @currentStudent.StudentName.Substring(0, 1).ToUpper()
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <h4 class="mb-1" style="color: #667eea; font-weight: bold;">@currentStudent.StudentName
+                                    </h4>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-hash"></i> @currentStudent.StudentId
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-book"></i> Faculty</div>
+                                        <div class="info-value">@currentStudent.Faculty</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-calendar3"></i> Semester</div>
+                                        <div class="info-value">@currentStudent.Semester</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-phone"></i> Mobile</div>
+                                        <div class="info-value">
+                                            <a href="tel:@currentStudent.Mobile" class="contact-link">
+                                                @currentStudent.Mobile
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-envelope"></i> Email</div>
+                                        <div class="info-value">
+                                            <a href="mailto:@currentStudent.Email" class="contact-link"
+                                                style="word-break: break-all; font-size: 0.85rem;">
+                                                @currentStudent.Email
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-gender-ambiguous"></i> Gender</div>
+                                        <div class="info-value">@currentStudent.Gender</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-row">
+                                        <div class="info-label"><i class="bi bi-droplet-fill"></i> Blood Group</div>
+                                        <div class="info-value">
+                                            <span class="blood-badge">@currentStudent.BloodGroup</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(currentStudent.EmergencyContactName))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-person-lines-fill"></i> Emergency Contact
+                                            </div>
+                                            <div class="info-value">@currentStudent.EmergencyContactName</div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(currentStudent.EmergencyContactPhone))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-telephone-fill"></i> Emergency Number</div>
+                                            <div class="info-value">
+                                                <a href="tel:@currentStudent.EmergencyContactPhone" class="contact-link">
+                                                    @currentStudent.EmergencyContactPhone
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Roommates Section -->
+    <div class="mt-5">
+        <h3 class="section-title">
+            <i class="bi bi-people-fill"></i> My Roommates
+            @if (Model != null && Model.Any())
+            {
+                <span class="badge bg-primary ms-2" style="font-size: 0.9rem;">@Model.Count</span>
+            }
+        </h3>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info mt-4" style="border-radius: 12px; border-left: 4px solid #0dcaf0;">
+                <i class="bi bi-info-circle"></i> You don't have any roommates yet. You have the room to yourself!
+            </div>
+        }
+        else
+        {
+            <div class="row mt-4">
+                @{
+                    var avatarClasses = new[] { "avatar-secondary", "avatar-success", "avatar-warning" };
+                    var avatarIndex = 0;
+                }
+                @foreach (var student in Model)
+                {
+                    <div class="col-lg-6 mb-4">
+                        <div class="card student-card roommate-card shadow">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center mb-3">
+                                    <div class="col-auto">
+                                        <div class="avatar-circle @avatarClasses[avatarIndex % avatarClasses.Length]">
+                                            @student.StudentName.Substring(0, 1).ToUpper()
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <h5 class="mb-1" style="font-weight: bold; color: #333;">@student.StudentName</h5>
+                                        <p class="text-muted mb-0">
+                                            <i class="bi bi-hash"></i> @student.StudentId
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <hr class="my-3">
+
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-book"></i> Faculty</div>
+                                            <div class="info-value">@student.Faculty</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-calendar3"></i> Semester</div>
+                                            <div class="info-value">@student.Semester</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-phone"></i> Mobile</div>
+                                            <div class="info-value">
+                                                <a href="tel:@student.Mobile" class="contact-link">
+                                                    @student.Mobile
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-envelope"></i> Email</div>
+                                            <div class="info-value">
+                                                <a href="mailto:@student.Email" class="contact-link"
+                                                    style="word-break: break-all; font-size: 0.85rem;">
+                                                    @student.Email
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-gender-ambiguous"></i> Gender</div>
+                                            <div class="info-value">@student.Gender</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-row">
+                                            <div class="info-label"><i class="bi bi-droplet-fill"></i> Blood Group</div>
+                                            <div class="info-value">
+                                                <span class="blood-badge">@student.BloodGroup</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    avatarIndex++;
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-5 text-center">
+        <a href="@Url.Action("Index", "StudentDashboard")" class="btn btn-lg btn-outline-primary"
+            style="border-radius: 25px; padding: 0.75rem 2rem;">
+            <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+        </a>
+    </div>
+</div>

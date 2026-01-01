@@ -1,0 +1,618 @@
+@{
+    ViewData["Title"] = "Apply for Room";
+    var availableRooms = ViewBag.AvailableRooms as List<ResidentialHallManagement.Core.Entities.Room>;
+}
+
+<style>
+    .room-application-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+
+    .room-card {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-color: #667eea;
+    }
+
+    .room-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .room-card-header {
+        background: #f8f9fa;
+        padding: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .room-card.selected .room-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .room-card-body {
+        padding: 20px;
+    }
+
+    .room-info-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .room-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .hall-section {
+        margin-bottom: 40px;
+    }
+
+    .hall-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .availability-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        margin-top: 30px;
+    }
+
+    .submit-section {
+        position: sticky;
+        bottom: 20px;
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        z-index: 100;
+    }
+
+    .action-btn-modern {
+        padding: 14px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-state i {
+        font-size: 100px;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+
+    .room-check-input {
+        display: none;
+    }
+
+    .capacity-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .capacity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #28a745;
+    }
+
+    .filter-section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div class="room-application-header">
+        <h2 class="mb-2"><i class="bi bi-house-add"></i> Apply for Room Allocation</h2>
+        <p class="mb-0 opacity-75">Select your preferred room from the available options below</p>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (availableRooms != null && availableRooms.Any())
+    {
+        <!-- Room Count Info -->
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle"></i>
+            <strong>@availableRooms.Count</strong> room(s) available across <strong>@availableRooms.GroupBy(r =>
+                            r.HallId).Count()</strong> hall(s)
+    </div>
+
+        <form asp-action="ApplyForRoom" method="post" id="roomApplicationForm">
+            @Html.AntiForgeryToken()
+
+        @foreach (var hallGroup in availableRooms.GroupBy(r => r.Hall).OrderBy(g => g.Key?.HallName))
+            {
+                <div class="hall-section">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="bi bi-building text-primary"></i> @hallGroup.Key?.HallName
+                            </h4>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-door-open"></i> @hallGroup.Count() room(s) available
+                            </p>
+                        </div>
+                        <span class="hall-badge bg-primary text-white">
+                            @hallGroup.Key?.HallType
+                        </span>
+                    </div>
+
+                    <div class="row">
+                        @foreach (var room in hallGroup.OrderBy(r => r.RoomNumber))
+                        {
+                            <div class="col-md-4 col-lg-3 mb-4">
+                                <input type="radio" class="room-check-input" name="selectedRoom"
+                                    id="room_@(room.RoomId)_@(room.HallId)" value="@room.RoomId|@room.HallId">
+
+                                <label class="room-card" for="room_@(room.RoomId)_@(room.HallId)">
+                                    <span class="availability-badge bg-success text-white">
+                                        @room.AvailableSlots Available
+                                    </span>
+
+                                    <div class="room-card-header">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-door-closed"></i>
+                                            Room @(room.RoomNumber ?? room.RoomId)
+                                        </h5>
+                                        @if (!string.IsNullOrEmpty(room.RoomName))
+                                        {
+                                            <small class="opacity-75">@room.RoomName</small>
+                                        }
+                                    </div>
+
+                                    <div class="room-card-body">
+                                        <div class="room-info-item">
+                                            <i class="bi bi-layers text-primary"></i>
+                                            <strong>Block:</strong> @(room.Block ?? "N/A")
+                                        </div>
+                                        <div class="room-info-item">
+                                            <i class="bi bi-building text-success"></i>
+                                            <strong>Floor:</strong> @(room.Floor?.ToString() ?? "N/A")
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(room.Wing))
+                                        {
+                                            <div class="room-info-item">
+                                                <i class="bi bi-signpost text-info"></i>
+                                                <strong>Wing:</strong> @room.Wing
+                                            </div>
+                                        }
+                                        <div class="room-info-item">
+                                            <i class="bi bi-people text-warning"></i>
+                                            <strong>Capacity:</strong>
+                                            <span class="capacity-indicator">
+                                                @for (int i = 0; i < room.RoomCapacity; i++)
+                                                {
+                                                    <span class="capacity-dot"></span>
+                                                }
+                                                @room.RoomCapacity
+                                            </span>
+                                        </div>
+                                        <div class="room-info-item">
+                                            <span class="badge bg-success w-100 py-2">@room.Status</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Application Details Section -->
+            <div class="form-section">
+                <h5 class="mb-3"><i class="bi bi-pencil-square"></i> Additional Information</h5>
+
+                <input type="hidden" id="roomId" name="roomId" required />
+                <input type="hidden" id="hallId" name="hallId" required />
+                <input type="hidden" id="preferredSide" name="preferredSide" required />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="bedNumber" class="form-label">
+                                <i class="bi bi-pin-angle"></i> Preferred Bed Number <small
+                                    class="text-muted">(Optional)</small>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="bedNumber" name="bedNumber"
+                                placeholder="e.g., A1, B2, Bed 1">
+                            <small class="form-text text-muted">Leave blank if you have no preference</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info mb-0">
+                            <h6><i class="bi bi-lightbulb"></i> Application Tips</h6>
+                            <ul class="mb-0 small">
+                                <li>Choose a room that suits your needs</li>
+                                <li>Consider proximity to facilities</li>
+                                <li>Check room capacity and occupancy</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted" id="selection-info">
+                            <i class="bi bi-info-circle"></i> Please select a room to continue
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary action-btn-modern me-2">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="button" class="btn btn-primary action-btn-modern" id="openSideModalBtn" disabled>
+                            <i class="bi bi-send-check"></i> Submit Application
+                        </button>
+                        <button type="submit" class="btn btn-primary action-btn-modern d-none" id="submitBtn">
+                            <i class="bi bi-send-check"></i> Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Seat Selection Modal -->
+        <div class="modal fade" id="sideSelectionModal" tabindex="-1" aria-labelledby="sideSelectionModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+                    <div class="modal-header text-white"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                        <h5 class="modal-title" id="sideSelectionModalLabel">
+                            <i class="bi bi-person-workspace me-2"></i> Select Your Preferred Seat
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted mb-4 text-center">
+                            <i class="bi bi-info-circle"></i> Click on your preferred seat. Each room has 4 seats: 2 near
+                            the window and 2 near the door.
+                        </p>
+
+                        <!-- Room Top-View Diagram with Individual Seats -->
+                        <div class="room-diagram-container mb-4">
+                            <div class="room-diagram-modal"
+                                style="background: #f8f9fa; border-radius: 15px; padding: 20px; position: relative; min-height: 350px; border: 3px solid #dee2e6;">
+
+                                <!-- Window Section (Top) -->
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <div class="window-icons"
+                                        style="display: flex; gap: 30px; justify-content: center; margin-bottom: 5px;">
+                                        <i class="bi bi-border" style="font-size: 28px; color: #42a5f5;"></i>
+                                        <i class="bi bi-border" style="font-size: 28px; color: #42a5f5;"></i>
+                                    </div>
+                                    <span
+                                        style="font-size: 12px; color: #42a5f5; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">WINDOW</span>
+                                </div>
+
+                                <!-- Window Side Seats Row -->
+                                <div
+                                    style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; padding: 15px; background: linear-gradient(180deg, #e3f2fd 0%, transparent 100%); border-radius: 12px;">
+                                    <!-- Seat 1 - Window Left -->
+                                    <div class="seat-option" id="seat1Option" onclick="selectSeat('WINDOW_LEFT', 1)"
+                                        style="background: white; border: 3px solid #42a5f5; border-radius: 12px; padding: 15px 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; min-width: 120px;">
+                                        <i class="bi bi-person" style="font-size: 28px; color: #42a5f5;"></i>
+                                        <div style="font-weight: 700; color: #333; margin-top: 5px;">Seat 1</div>
+                                        <div style="font-size: 11px; color: #42a5f5;">Window Left</div>
+                                    </div>
+                                    <!-- Seat 2 - Window Right -->
+                                    <div class="seat-option" id="seat2Option" onclick="selectSeat('WINDOW_RIGHT', 2)"
+                                        style="background: white; border: 3px solid #42a5f5; border-radius: 12px; padding: 15px 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; min-width: 120px;">
+                                        <i class="bi bi-person" style="font-size: 28px; color: #42a5f5;"></i>
+                                        <div style="font-weight: 700; color: #333; margin-top: 5px;">Seat 2</div>
+                                        <div style="font-size: 11px; color: #42a5f5;">Window Right</div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Center Divider -->
+                                <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
+                                    <div style="flex: 1; height: 2px; background: #dee2e6;"></div>
+                                    <div
+                                        style="background: white; padding: 8px 20px; border-radius: 20px; border: 1px solid #dee2e6; margin: 0 15px;">
+                                        <i class="bi bi-table" style="color: #94a3b8;"></i>
+                                        <span style="font-size: 12px; color: #94a3b8; margin-left: 5px;">Study Area</span>
+                                    </div>
+                                    <div style="flex: 1; height: 2px; background: #dee2e6;"></div>
+                                </div>
+
+                                <!-- Door Side Seats Row -->
+                                <div
+                                    style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; padding: 15px; background: linear-gradient(0deg, #fff3e0 0%, transparent 100%); border-radius: 12px;">
+                                    <!-- Seat 3 - Door Left -->
+                                    <div class="seat-option" id="seat3Option" onclick="selectSeat('DOOR_LEFT', 3)"
+                                        style="background: white; border: 3px solid #ff9800; border-radius: 12px; padding: 15px 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; min-width: 120px;">
+                                        <i class="bi bi-person" style="font-size: 28px; color: #ff9800;"></i>
+                                        <div style="font-weight: 700; color: #333; margin-top: 5px;">Seat 3</div>
+                                        <div style="font-size: 11px; color: #ff9800;">Door Left</div>
+                                    </div>
+                                    <!-- Seat 4 - Door Right -->
+                                    <div class="seat-option" id="seat4Option" onclick="selectSeat('DOOR_RIGHT', 4)"
+                                        style="background: white; border: 3px solid #ff9800; border-radius: 12px; padding: 15px 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; min-width: 120px;">
+                                        <i class="bi bi-person" style="font-size: 28px; color: #ff9800;"></i>
+                                        <div style="font-weight: 700; color: #333; margin-top: 5px;">Seat 4</div>
+                                        <div style="font-size: 11px; color: #ff9800;">Door Right</div>
+                                    </div>
+                                </div>
+
+                                <!-- Door Section (Bottom) -->
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <i class="bi bi-door-open" style="font-size: 28px; color: #ff9800;"></i>
+                                    <div
+                                        style="font-size: 12px; color: #ff9800; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">
+                                        DOOR</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selection Info -->
+                        <div class="alert alert-info" id="sideSelectionInfo" style="display: none;">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <strong>Selected:</strong> <span id="selectedSideText"></span>
+                        </div>
+
+                        <!-- Side Benefits -->
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #e3f2fd;">
+                                    <h6 class="mb-2" style="color: #1976d2;"><i class="bi bi-sun"></i> Window Side</h6>
+                                    <ul class="small mb-0" style="color: #666;">
+                                        <li>Natural lighting</li>
+                                        <li>Fresh air & ventilation</li>
+                                        <li>Pleasant view</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded" style="background: #fff3e0;">
+                                    <h6 class="mb-2" style="color: #e65100;"><i class="bi bi-door-open"></i> Door Side</h6>
+                                    <ul class="small mb-0" style="color: #666;">
+                                        <li>Easy access</li>
+                                        <li>Close to facilities</li>
+                                        <li>Privacy from outside</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border: none; padding: 20px;">
+                        <button type="button" class="btn btn-outline-secondary btn-lg" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary btn-lg" id="confirmSideBtn" disabled
+                            onclick="confirmAndSubmit()"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                            <i class="bi bi-check-circle"></i> Confirm & Submit Application
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4 class="text-muted">No Rooms Available</h4>
+            <p class="text-muted">Unfortunately, there are no rooms available at the moment. Please check back later.</p>
+            <a asp-action="Index" class="btn btn-primary btn-lg action-btn-modern mt-4">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Variables must be in global scope
+        let selectedSide = null;
+        let sideSelectionModal = null;
+        let roomIdInput, hallIdInput, preferredSideInput, openSideModalBtn, selectionInfo;
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get DOM elements
+            roomIdInput = document.getElementById('roomId');
+            hallIdInput = document.getElementById('hallId');
+            preferredSideInput = document.getElementById('preferredSide');
+            openSideModalBtn = document.getElementById('openSideModalBtn');
+            selectionInfo = document.getElementById('selection-info');
+
+            const roomRadios = document.querySelectorAll('.room-check-input');
+            const modalElement = document.getElementById('sideSelectionModal');
+
+            if (modalElement) {
+                sideSelectionModal = new bootstrap.Modal(modalElement);
+            }
+
+            // Room selection handlers
+            roomRadios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    document.querySelectorAll('.room-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+
+                    const label = document.querySelector(`label[for="${this.id}"]`);
+                    if (label) {
+                        label.classList.add('selected');
+                    }
+
+                    const [roomId, hallId] = this.value.split('|');
+                    roomIdInput.value = roomId;
+                    hallIdInput.value = hallId;
+
+                    if (openSideModalBtn) openSideModalBtn.disabled = false;
+
+                    const roomNumber = label.querySelector('h5').textContent.trim();
+                    const hallName = label.closest('.hall-section').querySelector('h4').textContent.trim();
+                    if (selectionInfo) {
+                        selectionInfo.innerHTML = `<i class="bi bi-check-circle text-success"></i> Selected: ${roomNumber} in ${hallName}`;
+                    }
+
+                    document.querySelector('.form-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+            });
+
+            // Open modal button handler
+            if (openSideModalBtn) {
+                openSideModalBtn.addEventListener('click', function () {
+                    if (!roomIdInput.value || !hallIdInput.value) {
+                        alert('Please select a room first.');
+                        return;
+                    }
+                    // Reset seat selection
+                    selectedSide = null;
+                    document.querySelectorAll('.seat-option').forEach(seat => {
+                        seat.style.transform = 'scale(1)';
+                        seat.style.boxShadow = 'none';
+                        seat.style.background = 'white';
+                    });
+                    const infoEl = document.getElementById('sideSelectionInfo');
+                    const confirmBtn = document.getElementById('confirmSideBtn');
+                    if (infoEl) infoEl.style.display = 'none';
+                    if (confirmBtn) confirmBtn.disabled = true;
+
+                    if (sideSelectionModal) sideSelectionModal.show();
+                });
+            }
+
+            // Form validation
+            const form = document.getElementById('roomApplicationForm');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    if (!roomIdInput.value || !hallIdInput.value) {
+                        e.preventDefault();
+                        alert('Please select a room before submitting your application.');
+                        return false;
+                    }
+                    if (!preferredSideInput.value) {
+                        e.preventDefault();
+                        alert('Please select your preferred seat.');
+                        return false;
+                    }
+                });
+            }
+
+            // Highlight selected room on page load
+            const selectedRadio = document.querySelector('.room-check-input:checked');
+            if (selectedRadio) {
+                const label = document.querySelector(`label[for="${selectedRadio.id}"]`);
+                if (label) label.classList.add('selected');
+            }
+        });
+
+        // Global seat selection function
+        function selectSeat(seatType, seatNumber) {
+            selectedSide = seatType;
+
+            // Reset all seats
+            document.querySelectorAll('.seat-option').forEach(seat => {
+                seat.style.transform = 'scale(1)';
+                seat.style.boxShadow = 'none';
+                seat.style.background = 'white';
+            });
+
+            // Highlight selected seat
+            const selectedEl = document.getElementById('seat' + seatNumber + 'Option');
+            if (selectedEl) {
+                const isWindowSide = seatType.startsWith('WINDOW');
+                selectedEl.style.transform = 'scale(1.08)';
+                selectedEl.style.boxShadow = isWindowSide
+                    ? '0 8px 25px rgba(66, 165, 245, 0.5)'
+                    : '0 8px 25px rgba(255, 152, 0, 0.5)';
+                selectedEl.style.background = isWindowSide ? '#e3f2fd' : '#fff3e0';
+            }
+
+            // Show selection info
+            const displayText = {
+                'WINDOW_LEFT': 'Seat 1 - Window Left',
+                'WINDOW_RIGHT': 'Seat 2 - Window Right',
+                'DOOR_LEFT': 'Seat 3 - Door Left',
+                'DOOR_RIGHT': 'Seat 4 - Door Right'
+            };
+            const infoEl = document.getElementById('sideSelectionInfo');
+            const textEl = document.getElementById('selectedSideText');
+            const confirmBtn = document.getElementById('confirmSideBtn');
+
+            if (infoEl) infoEl.style.display = 'block';
+            if (textEl) textEl.textContent = displayText[seatType] || seatType;
+            if (confirmBtn) confirmBtn.disabled = false;
+        }
+
+        // Global confirm and submit function
+        function confirmAndSubmit() {
+            if (!selectedSide) {
+                alert('Please select a seat preference.');
+                return;
+            }
+
+            // Set the preferred seat type
+            const preferredInput = document.getElementById('preferredSide');
+            if (preferredInput) preferredInput.value = selectedSide;
+
+            // Hide modal and submit
+            if (sideSelectionModal) sideSelectionModal.hide();
+
+            const form = document.getElementById('roomApplicationForm');
+            if (form) form.submit();
+        }
+    </script>
+}

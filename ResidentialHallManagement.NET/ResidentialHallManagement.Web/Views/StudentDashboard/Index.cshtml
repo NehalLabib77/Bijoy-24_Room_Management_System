@@ -1,0 +1,566 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var student = ViewBag.Student as ResidentialHallManagement.Core.Entities.Student;
+    var currentAllocation = ViewBag.CurrentAllocation as ResidentialHallManagement.Core.Entities.RoomAssignment;
+    var roomData = ViewBag.RoomData as ResidentialHallManagement.Core.Entities.Room;
+    var maintenanceRequests = ViewBag.MaintenanceRequests as
+    List<ResidentialHallManagement.Core.Entities.MaintenanceRequest> ?? new
+    List<ResidentialHallManagement.Core.Entities.MaintenanceRequest>();
+    var pendingMaintenanceCount = ViewBag.PendingMaintenanceCount as int? ?? 0;
+    var hasPendingRoomChange = ViewBag.HasPendingRequest as bool? ?? false;
+    var seatApplication = ViewBag.SeatApplication as ResidentialHallManagement.Core.Entities.SeatApplication;
+    var bookedSeat = ViewBag.BookedSeat as ResidentialHallManagement.Core.Entities.Seat;
+}
+
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .stat-card.warning {
+        background: linear-gradient(135deg, #8b7cf6 0%, #9d6cc8 100%);
+    }
+
+    .stat-card.success {
+        background: linear-gradient(135deg, #7b8ef9 0%, #8673e8 100%);
+    }
+
+    .stat-card.info {
+        background: linear-gradient(135deg, #9890f7 0%, #a484d8 100%);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.95;
+        font-weight: 500;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .info-table {
+        margin: 0;
+    }
+
+    .info-table td,
+    .info-table th {
+        padding: 12px 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-table tr:last-child td,
+    .info-table tr:last-child th {
+        border-bottom: none;
+    }
+
+    .info-table th {
+        color: #6c757d;
+        font-weight: 600;
+        width: 40%;
+    }
+
+    .action-btn {
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .welcome-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+
+    .maintenance-item {
+        padding: 15px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .maintenance-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .room-status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .card-header-modern {
+        background: transparent;
+        border-bottom: 2px solid #f0f0f0;
+        padding: 20px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .no-room-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .no-room-state i {
+        font-size: 80px;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+
+    .progress-modern {
+        height: 8px;
+        border-radius: 10px;
+        background: #e9ecef;
+    }
+
+    .progress-modern .progress-bar {
+        border-radius: 10px;
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle"></i> @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (student != null)
+    {
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2"><i class="bi bi-speedometer2"></i> Welcome Back!</h2>
+                    <h4 class="mb-0">@student.StudentName</h4>
+                    <p class="mb-0 mt-2 opacity-75">
+                        <i class="bi bi-person-badge"></i> @student.StudentId |
+                        <i class="bi bi-book"></i> @student.Faculty |
+                        <i class="bi bi-calendar"></i> Semester @student.Semester
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-sm mb-3">
+                        <i class="bi bi-house"></i> Home
+                    </a>
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill" style="font-size: 50px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="row mb-4">
+            @if (currentAllocation != null && roomData != null)
+            {
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <i class="bi bi-door-closed" style="font-size: 2rem;"></i>
+                        <div class="stat-number">@(roomData.RoomNumber ?? "N/A")</div>
+                        <div class="stat-label">Room Number</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card success">
+                        <i class="bi bi-building" style="font-size: 2rem;"></i>
+                        <div class="stat-number">@(roomData.Hall?.HallName ?? "N/A")</div>
+                        <div class="stat-label">@(roomData.Block ?? "Block")</div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card warning">
+                    <i class="bi bi-tools" style="font-size: 2rem;"></i>
+                    <div class="stat-number">@pendingMaintenanceCount</div>
+                    <div class="stat-label">Maintenance Requests</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card info">
+                    <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                    <div class="stat-number">@student.Status</div>
+                    <div class="stat-label">Student Status</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-4 mb-4">
+                <!-- Personal Information Card -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header-modern">
+                        <i class="bi bi-person-badge text-primary"></i> Personal Information
+                    </div>
+                    <div class="card-body">
+                        <table class="table info-table">
+                            <tr>
+                                <th>Student ID</th>
+                                <td><strong>@student.StudentId</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <td>@student.StudentName</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td><small>@(student.Email ?? "N/A")</small></td>
+                            </tr>
+                            <tr>
+                                <th>Mobile</th>
+                                <td>@student.Mobile</td>
+                            </tr>
+                            <tr>
+                                <th>Faculty</th>
+                                <td><span class="badge bg-primary">@student.Faculty</span></td>
+                            </tr>
+                            <tr>
+                                <th>Semester</th>
+                                <td>@student.Semester</td>
+                            </tr>
+                            <tr>
+                                <th>Blood Group</th>
+                                <td><span class="badge bg-danger">@student.BloodGroup</span></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td><span class="badge bg-success">@student.Status</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Card -->
+                <div class="card dashboard-card">
+                    <div class="card-header-modern">
+                        <i class="bi bi-telephone-forward text-danger"></i> Emergency Contact
+                    </div>
+                    <div class="card-body">
+                        <table class="table info-table">
+                            <tr>
+                                <th>Name</th>
+                                <td>@(student.EmergencyContactName ?? "Not provided")</td>
+                            </tr>
+                            <tr>
+                                <th>Phone</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(student.EmergencyContactPhone))
+                                    {
+                                        <a href="tel:@student.EmergencyContactPhone" class="text-decoration-none">
+                                            <i class="bi bi-telephone"></i> @student.EmergencyContactPhone
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not provided</span>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column -->
+            <div class="col-lg-4 mb-4">
+                <!-- Room Allocation Card -->
+                <div class="card dashboard-card h-100">
+                    <div class="card-header-modern">
+                        <i class="bi bi-house-door text-success"></i> Room Allocation & Details
+                    </div>
+                    <div class="card-body">
+                        @if (currentAllocation != null && roomData != null)
+                        {
+                            <table class="table info-table">
+                                <tr>
+                                    <th>Hall</th>
+                                    <td><strong>@currentAllocation.Hall?.HallName</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Room</th>
+                                    <td><strong class="text-primary fs-5">@(roomData.RoomNumber ?? "N/A")</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Block</th>
+                                    <td><span class="badge bg-secondary">@(roomData.Block ?? "N/A")</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Floor</th>
+                                    <td>@(roomData.Floor?.ToString() ?? "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Bed Number</th>
+                                    <td><span class="badge bg-info">@(currentAllocation.BedNumber ?? "Not Assigned")</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Capacity</th>
+                                    <td>@roomData.RoomCapacity persons</td>
+                                </tr>
+                                <tr>
+                                    <th>Occupancy</th>
+                                    <td>
+                                        <div class="progress progress-modern mt-1">
+                                            @{
+                                                var occupancy = roomData.RoomCapacity > 0 ? (100 - (roomData.AvailableSlots * 100 /
+                                                roomData.RoomCapacity)) : 0;
+                                                var statusText = roomData.AvailableSlots == 0 ? "Occupied" : $"{occupancy}% occupied";
+                                            }
+                                            <div class="progress-bar @(occupancy >= 100 ? "bg-danger" : occupancy >= 75 ? "bg-warning" : "bg-success")"
+                                                style="width: @occupancy%"></div>
+                                        </div>
+                                        <small class="text-muted">@statusText</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Check-in</th>
+                                    <td>@currentAllocation.AssignmentDate.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td><span class="room-status-badge bg-success text-white">@currentAllocation.Status</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div class="mt-4 d-grid gap-2">
+                                <a asp-action="ViewRoomMembers" class="btn btn-primary action-btn">
+                                    <i class="bi bi-people-fill"></i> View My Roommates
+                                </a>
+                                @if (!hasPendingRoomChange)
+                                {
+                                    <a asp-action="ApplyRoomChange" class="btn btn-outline-warning action-btn">
+                                        <i class="bi bi-arrow-left-right"></i> Request Room Change
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info mb-0">
+                                        <i class="bi bi-clock"></i> Room change request pending
+                                    </div>
+                                }
+                                <a asp-action="RoomChangeApplications" class="btn btn-outline-secondary action-btn">
+                                    <i class="bi bi-clock-history"></i> View Applications
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-room-state">
+                                <i class="bi bi-house-slash"></i>
+                                <h5 class="text-muted">No Room Assigned</h5>
+                                <p class="text-muted">You haven't been assigned a room yet</p>
+                                <a asp-action="ApplyForRoom" class="btn btn-primary btn-lg action-btn mt-3">
+                                    <i class="bi bi-plus-circle"></i> Apply for Room Now
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4 mb-4">
+                <!-- Seat Booking Status Card -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-header-modern">
+                        <i class="bi bi-door-open text-info"></i> Seat Booking Status
+                    </div>
+                    <div class="card-body">
+                        @if (bookedSeat != null)
+                        {
+                            <div class="text-center mb-3">
+                                <div class="seat-icon-large bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    style="width: 60px; height: 60px;">
+                                    <i class="bi bi-check-circle" style="font-size: 28px;"></i>
+                                </div>
+                            </div>
+                            <table class="table info-table">
+                                <tr>
+                                    <th>Seat</th>
+                                    <td><strong class="text-success">Seat #@bookedSeat.SeatNumber</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Type</th>
+                                    <td><span
+                                            class="badge @(bookedSeat.SeatType == "Window" ? "bg-info" : "bg-secondary")">@bookedSeat.SeatType
+                                            Side</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Room</th>
+                                    <td>@bookedSeat.Room?.RoomNumber</td>
+                                </tr>
+                                <tr>
+                                    <th>Hall</th>
+                                    <td>@bookedSeat.Room?.Hall?.HallName</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td><span class="badge bg-success">Booked</span></td>
+                                </tr>
+                            </table>
+                        }
+                        else if (seatApplication != null)
+                        {
+                            <div class="text-center mb-3">
+                                <div class="seat-icon-large @(seatApplication.Status == "Pending" ? "bg-warning" : seatApplication.Status == "Rejected" ? "bg-danger" : "bg-secondary") text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                    style="width: 60px; height: 60px;">
+                                    <i class="bi @(seatApplication.Status == "Pending" ? "bi-hourglass-split" : seatApplication.Status == "Rejected" ? "bi-x-circle" : "bi-check-circle")"
+                                        style="font-size: 28px;"></i>
+                                </div>
+                            </div>
+                            <table class="table info-table">
+                                <tr>
+                                    <th>Application</th>
+                                    <td><span
+                                            class="badge @(seatApplication.Status == "Pending" ? "bg-warning" : seatApplication.Status == "Rejected" ? "bg-danger" : "bg-success")">@seatApplication.Status</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Seat</th>
+                                    <td>Seat #@seatApplication.Seat?.SeatNumber</td>
+                                </tr>
+                                <tr>
+                                    <th>Room</th>
+                                    <td>@seatApplication.Seat?.Room?.RoomNumber</td>
+                                </tr>
+                                <tr>
+                                    <th>Applied</th>
+                                    <td>@seatApplication.ApplicationDate.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            </table>
+                            <div class="mt-3 d-grid">
+                                <a asp-controller="SeatApplication" asp-action="MyApplication"
+                                    class="btn btn-outline-primary action-btn">
+                                    <i class="bi bi-eye"></i> View Application
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-3">
+                                <i class="bi bi-door-open" style="font-size: 48px; color: #dee2e6;"></i>
+                                <p class="text-muted mt-3 mb-2">No seat booking yet</p>
+                                <a asp-controller="SeatApplication" asp-action="Index" class="btn btn-primary action-btn">
+                                    <i class="bi bi-plus-circle"></i> Book a Seat Now
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Maintenance Requests Card -->
+                <div class="card dashboard-card">
+                    <div class="card-header-modern d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-tools text-warning"></i> Maintenance Requests</span>
+                        <a asp-action="MaintenanceRequests" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        @if (currentAllocation != null)
+                        {
+                            <a asp-action="CreateMaintenanceRequest" class="btn btn-warning action-btn w-100 mb-3">
+                                <i class="bi bi-plus-circle"></i> Submit New Request
+                            </a>
+                        }
+
+                        @if (maintenanceRequests != null && maintenanceRequests.Any())
+                        {
+                            @foreach (var request in maintenanceRequests.Take(4))
+                            {
+                                <div class="maintenance-item">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0">
+                                            @(request.Issue.Length > 40 ? request.Issue.Substring(0, 40) + "..." : request.Issue)
+                                        </h6>
+                                        @if (request.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning">Pending</span>
+                                        }
+                                        else if (request.Status == "Resolved")
+                                        {
+                                            <span class="badge bg-success">Resolved</span>
+                                        }
+                                        else if (request.Status == "InProgress")
+                                        {
+                                            <span class="badge bg-info">In Progress</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@request.Status</span>
+                                        }
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> @request.SubmittedOn.ToString("MMM dd, yyyy") |
+                                        <i class="bi bi-flag-fill"></i> @request.Priority
+                                    </small>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox" style="font-size: 48px; color: #dee2e6;"></i>
+                                <p class="text-muted mt-3">No maintenance requests</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+</div>
+}
+</div>

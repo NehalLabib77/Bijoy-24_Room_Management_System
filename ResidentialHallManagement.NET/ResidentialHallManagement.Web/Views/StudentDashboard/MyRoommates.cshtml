@@ -1,0 +1,203 @@
+@model ResidentialHallManagement.Web.ViewModels.RoomStudentViewModel
+@{
+    ViewData["Title"] = "My Roommates";
+    var currentStudent = ViewBag.CurrentStudent as ResidentialHallManagement.Web.ViewModels.StudentInRoomViewModel;
+}
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2><i class="bi bi-people-fill"></i> My Roommates</h2>
+            <p class="text-muted">Students sharing your room</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Room Information -->
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-door-open"></i> Your Room Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong><i class="bi bi-building"></i> Hall:</strong> @Model.HallName</p>
+                    <p><strong><i class="bi bi-hash"></i> Room Number:</strong> @(Model.RoomNumber ?? "N/A")</p>
+                    @if (!string.IsNullOrEmpty(Model.Wing))
+                    {
+                        <p><strong>Wing:</strong> @Model.Wing</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Block))
+                    {
+                        <p><strong>Block:</strong> @Model.Block</p>
+                    }
+                </div>
+                <div class="col-md-6">
+                    @if (Model.Floor.HasValue)
+                    {
+                        <p><strong>Floor:</strong> @Model.Floor</p>
+                    }
+                    <p><strong>Total Capacity:</strong> @Model.Capacity students</p>
+                    <p><strong>Currently Occupied:</strong> @(Model.Capacity - Model.AvailableSlots) / @Model.Capacity</p>
+                    <p><strong>Your Bed:</strong> @(currentStudent?.BedNumber ?? "Not assigned")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your Information -->
+    @if (currentStudent != null)
+    {
+        <div class="card mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-person-circle"></i> Your Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> @currentStudent.StudentName</p>
+                        <p><strong>Student ID:</strong> @currentStudent.StudentId</p>
+                        <p><strong>Boarder No:</strong> <span class="badge bg-primary">@currentStudent.BoarderNo</span></p>
+                        <p><strong>Faculty:</strong> @currentStudent.Faculty</p>
+                        <p><strong>Semester:</strong> @currentStudent.Semester</p>
+                    </div>
+                    <div class="col-md-6">
+                        @if (!string.IsNullOrEmpty(currentStudent.Department))
+                        {
+                            <p><strong>Department:</strong> @currentStudent.Department</p>
+                        }
+                        <p><strong>Mobile:</strong> @currentStudent.Mobile</p>
+                        @if (!string.IsNullOrEmpty(currentStudent.Email))
+                        {
+                            <p><strong>Email:</strong> @currentStudent.Email</p>
+                        }
+                        @if (!string.IsNullOrEmpty(currentStudent.BloodGroup))
+                        {
+                            <p><strong>Blood Group:</strong> <span class="badge bg-danger">@currentStudent.BloodGroup</span></p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Roommates List -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Your Roommates (@Model.Students.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Students.Any())
+            {
+                <div class="row">
+                    @foreach (var roommate in Model.Students)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-person-badge"></i> @roommate.StudentName
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-2">
+                                        <strong>Student ID:</strong><br/>
+                                        <span class="text-primary">@roommate.StudentId</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Boarder No:</strong><br/>
+                                        <span class="badge bg-primary">@roommate.BoarderNo</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Bed:</strong> @(roommate.BedNumber ?? "Not assigned")
+                                    </p>
+                                    <hr/>
+                                    <p class="mb-2">
+                                        <strong>Faculty:</strong><br/>
+                                        @roommate.Faculty
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Semester:</strong> @roommate.Semester
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(roommate.Department))
+                                    {
+                                        <p class="mb-2">
+                                            <strong>Department:</strong><br/>
+                                            @roommate.Department
+                                        </p>
+                                    }
+                                    <hr/>
+                                    <p class="mb-2">
+                                        <i class="bi bi-telephone-fill text-success"></i>
+                                        <a href="tel:@roommate.Mobile">@roommate.Mobile</a>
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(roommate.Email))
+                                    {
+                                        <p class="mb-2">
+                                            <i class="bi bi-envelope-fill text-primary"></i>
+                                            <a href="mailto:@roommate.Email">@roommate.Email</a>
+                                        </p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(roommate.BloodGroup))
+                                    {
+                                        <p class="mb-2">
+                                            <strong>Blood Group:</strong>
+                                            <span class="badge bg-danger">@roommate.BloodGroup</span>
+                                        </p>
+                                    }
+                                    <hr/>
+                                    <p class="mb-0">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar-event"></i> 
+                                            Room since: @roommate.StartDate.ToString("MMM dd, yyyy")
+                                        </small>
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(roommate.EmergencyContactName))
+                                    {
+                                        <hr/>
+                                        <p class="mb-0">
+                                            <small>
+                                                <strong>Emergency Contact:</strong><br/>
+                                                @roommate.EmergencyContactName<br/>
+                                                @roommate.EmergencyContactPhone
+                                            </small>
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Quick Contact Summary -->
+                <div class="alert alert-info mt-4">
+                    <h6><i class="bi bi-info-circle"></i> Quick Tips</h6>
+                    <ul class="mb-0">
+                        <li>Keep your roommates' contact information handy for emergencies</li>
+                        <li>Respect each other's study time and privacy</li>
+                        <li>Coordinate on room cleanliness and shared responsibilities</li>
+                        <li>Report any maintenance issues through the dashboard</li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> You don't have any roommates yet. You're the only one in this room!
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+@model ResidentialHallManagement.Core.Entities.BoarderRegistry
+
+@{
+    ViewData["Title"] = "Edit Boarder";
+}
+
+<div class="container">
+    <h3>Edit Boarder</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="BoarderNo" />
+        <div class="mb-3">
+            <label asp-for="BoarderNo" class="form-label"></label>
+            <input asp-for="BoarderNo" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" class="form-select">
+                <option value="Available">Available</option>
+                <option value="Assigned">Assigned</option>
+            </select>
+        </div>
+        <div class="d-grid">
+            <button class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>

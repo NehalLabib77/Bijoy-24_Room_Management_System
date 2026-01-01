@@ -1,0 +1,305 @@
+@model ResidentialHallManagement.Web.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        max-width: 500px;
+        width: 100%;
+        padding: 40px;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .login-header p {
+        font-size: 14px;
+        color: #7f8c8d;
+        margin: 0;
+    }
+
+    .role-selection {
+        margin-bottom: 30px;
+    }
+
+    .role-option {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .role-option:hover {
+        border-color: #3498db;
+        background-color: #f8f9fa;
+    }
+
+    .role-option.selected {
+        border-color: #3498db;
+        background-color: #e3f2fd;
+    }
+
+    .role-option input[type="radio"] {
+        margin-right: 15px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .role-content {
+        flex: 1;
+    }
+
+    .role-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: #2c3e50;
+        margin-bottom: 4px;
+    }
+
+    .role-description {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .form-control-modern {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-modern:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .remember-me label {
+        font-size: 14px;
+        color: #2c3e50;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 24px;
+    }
+
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .registration-links {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .registration-links p {
+        font-size: 14px;
+        color: #7f8c8d;
+        margin-bottom: 12px;
+    }
+
+    .registration-links a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .registration-links a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    @@media (max-width: 576px) {
+        .login-card {
+            padding: 30px 20px;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+            <h1>Residential Hall Management System</h1>
+            <p>© 2025 BIJOY-24</p>
+        </div>
+
+        <form asp-action="Login" asp-controller="Account" method="post" id="loginForm">
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+            <!-- Role Selection -->
+            <div class="role-selection">
+                <div class="role-option" onclick="selectRole(this, 'student')">
+                    <input type="radio" name="userRole" id="roleStudent" value="student">
+                    <div class="role-content">
+                        <div class="role-title">Student</div>
+                        <p class="role-description">Use your registered credentials</p>
+                    </div>
+                </div>
+
+                <div class="role-option" onclick="selectRole(this, 'halladmin')">
+                    <input type="radio" name="userRole" id="roleHallAdmin" value="halladmin">
+                    <div class="role-content">
+                        <div class="role-title">Hall Admin</div>
+                        <p class="role-description">Use credentials from System Admin</p>
+                    </div>
+                </div>
+
+                <div class="role-option" onclick="selectRole(this, 'admin')">
+                    <input type="radio" name="userRole" id="roleAdmin" value="admin">
+                    <div class="role-content">
+                        <div class="role-title">System Admin</div>
+                        <p class="role-description">Database administrator access</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Username Field -->
+            <div class="form-group">
+                <label asp-for="Username">Username</label>
+                <input asp-for="Username" class="form-control-modern" placeholder="l8" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" class="form-control-modern" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="remember-me">
+                <input asp-for="RememberMe" type="checkbox" id="rememberMe" />
+                <label asp-for="RememberMe" for="rememberMe">Remember me</label>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="login-button">Login</button>
+
+            <!-- Registration Links -->
+            <div class="registration-links">
+                <p id="registrationText">Not logged in? <a asp-action="Register" asp-controller="Account" id="registerLink">Register now</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function selectRole(element, role) {
+            // Remove selected class from all options
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add selected class to clicked option
+            element.classList.add('selected');
+
+            // Check the radio button
+            element.querySelector('input[type="radio"]').checked = true;
+
+            // Update registration link based on role
+            const registrationText = document.getElementById('registrationText');
+            const registerLink = document.getElementById('registerLink');
+
+            if (role === 'student') {
+                registrationText.innerHTML = 'Not logged in? <a href="/Account/Register" id="registerLink">Register now</a>';
+            } else if (role === 'halladmin') {
+                registrationText.innerHTML = 'Not logged in? <a href="/Account/RegisterHallAdmin" id="registerLink">Register now</a>';
+            } else if (role === 'admin') {
+                registrationText.innerHTML = 'System Admin accounts are created by database administrators';
+                registrationText.style.fontSize = '13px';
+                registrationText.style.color = '#7f8c8d';
+            }
+        }
+
+        // Auto-select first option on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstOption = document.querySelector('.role-option');
+            if (firstOption) {
+                selectRole(firstOption, 'student');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,349 @@
+@{
+    ViewData["Title"] = "Room & Seat Selection";
+    var student = ViewBag.Student as ResidentialHallManagement.Core.Entities.Student;
+    var halls = ViewBag.Halls as List<ResidentialHallManagement.Core.Entities.Hall> ?? new
+    List<ResidentialHallManagement.Core.Entities.Hall>();
+    var canApply = ViewBag.CanApply as bool? ?? true;
+    var existingBooking = ViewBag.ExistingBooking as ResidentialHallManagement.Core.Entities.SeatApplication;
+}
+
+<link rel="stylesheet" href="~/css/seat-application.css" asp-append-version="true" />
+
+<div class="seat-application-container">
+    <!-- Hero Banner -->
+    <section class="page-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-icon">
+                <i class="bi bi-door-open"></i>
+            </div>
+            <h1 class="hero-title">Room & Seat Selection</h1>
+            <p class="hero-subtitle">Find your perfect accommodation in our residential halls</p>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        @if (!canApply && existingBooking != null)
+        {
+            <!-- Existing Booking Alert -->
+            <div class="existing-booking-card">
+                <div class="booking-status-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="booking-info">
+                    <h3>You Already Have a Booking</h3>
+                    <div class="booking-details">
+                        <div class="detail-item">
+                            <i class="bi bi-building"></i>
+                            <span>@existingBooking.Seat?.Room?.Hall?.HallName</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-door-closed"></i>
+                            <span>Room @existingBooking.Seat?.Room?.RoomNumber</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-person-workspace"></i>
+                            <span>@existingBooking.Seat?.SeatLabel</span>
+                        </div>
+                        <div
+                            class="detail-item status-badge @(existingBooking.Status == "Approved" ? "status-approved" : "status-pending")">
+                            <i
+                                class="bi bi-@(existingBooking.Status == "Approved" ? "check-circle" : "hourglass-split")"></i>
+                            <span>@existingBooking.Status</span>
+                        </div>
+                    </div>
+                </div>
+                <a asp-action="MyApplication" class="btn btn-outline-primary">
+                    <i class="bi bi-eye"></i> View Details
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Student Info Card -->
+            @if (student != null)
+            {
+                <div class="student-info-card">
+                    <div class="student-avatar">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <div class="student-details">
+                        <h4>@student.StudentName</h4>
+                        <div class="student-meta">
+                            <span><i class="bi bi-person-badge"></i> @student.StudentId</span>
+                            <span><i class="bi bi-mortarboard"></i> @student.Faculty</span>
+                            <span><i class="bi bi-gender-@(student.Gender == "MALE" ? "male" : "female")"></i>
+                                @student.Gender</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Hall Selection Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Step 1: Select Hall</h2>
+                        <p class="section-subtitle">Choose from available residential halls</p>
+                    </div>
+                </div>
+
+                @if (halls.Any())
+                {
+                    <div class="halls-grid">
+                        @foreach (var hall in halls)
+                        {
+                            <div class="hall-card" data-hall-id="@hall.HallId" onclick="selectHall(@hall.HallId, '@hall.HallName')">
+                                <div class="hall-image">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <div class="hall-info">
+                                    <h4 class="hall-name">@hall.HallName</h4>
+                                    <div class="hall-meta">
+                                        <span class="hall-type @(hall.HallType == "MALE" ? "male" : "female")">
+                                            <i class="bi bi-gender-@(hall.HallType == "MALE" ? "male" : "female")"></i>
+                                            @hall.HallType
+                                        </span>
+                                        <span class="hall-capacity">
+                                            <i class="bi bi-people"></i>
+                                            Capacity: @hall.HallCapacity
+                                        </span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(hall.Location))
+                                    {
+                                        <span class="hall-location">
+                                            <i class="bi bi-geo-alt"></i> @hall.Location
+                                        </span>
+                                    }
+                                </div>
+                                <div class="hall-select-indicator">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-building-slash"></i>
+                        <h4>No Halls Available</h4>
+                        <p>There are currently no halls available for your gender type.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Room Selection Section -->
+            <div class="section-card" id="roomSection" style="display: none;">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bi bi-door-closed"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Step 2: Select Room</h2>
+                        <p class="section-subtitle">Browse available rooms in <span id="selectedHallName">the selected
+                                hall</span></p>
+                    </div>
+                </div>
+
+                <div id="roomsLoading" class="loading-state">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading available rooms...</p>
+                </div>
+
+                <div id="roomsContainer" class="rooms-grid" style="display: none;">
+                    <!-- Rooms will be loaded here via AJAX -->
+                </div>
+
+                <div id="noRoomsMessage" class="empty-state" style="display: none;">
+                    <i class="bi bi-door-open-fill"></i>
+                    <h4>No Available Rooms</h4>
+                    <p>All rooms in this hall are currently occupied. Please try another hall.</p>
+                </div>
+            </div>
+
+            <!-- Seat Selection Action -->
+            <div class="section-card" id="seatActionSection" style="display: none;">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bi bi-person-workspace"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Step 3: Select Your Seat</h2>
+                        <p class="section-subtitle">Click the button below to view room layout and select a seat</p>
+                    </div>
+                </div>
+
+                <div class="room-preview-card" id="selectedRoomPreview">
+                    <div class="room-preview-header">
+                        <h3 id="previewRoomNumber">Room</h3>
+                        <span class="availability-badge available">
+                            <i class="bi bi-check-circle"></i> Available
+                        </span>
+                    </div>
+                    <div class="room-preview-details">
+                        <div class="preview-detail">
+                            <i class="bi bi-layers"></i>
+                            <span>Floor: <strong id="previewFloor">-</strong></span>
+                        </div>
+                        <div class="preview-detail">
+                            <i class="bi bi-grid-3x3"></i>
+                            <span>Block: <strong id="previewBlock">-</strong></span>
+                        </div>
+                        <div class="preview-detail">
+                            <i class="bi bi-people"></i>
+                            <span>Capacity: <strong id="previewCapacity">4</strong></span>
+                        </div>
+                        <div class="preview-detail">
+                            <i class="bi bi-person-check"></i>
+                            <span>Available Slots: <strong id="previewSlots">-</strong></span>
+                        </div>
+                    </div>
+                    <a id="viewRoomLayoutBtn" href="#" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-grid-3x2-gap"></i> View Room Layout & Select Seat
+                    </a>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend-card">
+                <h5><i class="bi bi-info-circle"></i> Seat Status Legend</h5>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-indicator available"></span>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator booked"></span>
+                        <span>Booked</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator selected"></span>
+                        <span>Your Selection</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-indicator held"></span>
+                        <span>Temporarily Held</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedHallId = null;
+        let selectedRoomId = null;
+        let selectedRoomHallId = null;
+
+        function selectHall(hallId, hallName) {
+            // Remove previous selection
+            document.querySelectorAll('.hall-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            document.querySelector(`[data-hall-id="${hallId}"]`).classList.add('selected');
+
+            selectedHallId = hallId;
+            document.getElementById('selectedHallName').textContent = hallName;
+
+            // Show room section and load rooms
+            document.getElementById('roomSection').style.display = 'block';
+            document.getElementById('seatActionSection').style.display = 'none';
+            loadRooms(hallId);
+
+            // Scroll to room section
+            document.getElementById('roomSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadRooms(hallId) {
+            const loadingEl = document.getElementById('roomsLoading');
+            const containerEl = document.getElementById('roomsContainer');
+            const noRoomsEl = document.getElementById('noRoomsMessage');
+
+            loadingEl.style.display = 'flex';
+            containerEl.style.display = 'none';
+            noRoomsEl.style.display = 'none';
+
+            try {
+                const response = await fetch(`/SeatApplication/GetRooms?hallId=${hallId}`);
+                const rooms = await response.json();
+
+                loadingEl.style.display = 'none';
+
+                if (rooms.length === 0) {
+                    noRoomsEl.style.display = 'flex';
+                    return;
+                }
+
+                containerEl.innerHTML = rooms.map(room => `
+                        <div class="room-card" data-room-id="${room.roomId}" data-hall-id="${room.hallId}" 
+                             onclick="selectRoom('${room.roomId}', ${room.hallId}, '${room.roomNumber}', ${room.floor || 0}, '${room.block || '-'}', ${room.roomCapacity}, ${room.availableSlots})">
+                            <div class="room-header">
+                                <span class="room-number">Room ${room.roomNumber || room.roomId}</span>
+                                <span class="slots-badge ${room.availableSlots > 2 ? 'high' : room.availableSlots > 0 ? 'medium' : 'low'}">
+                                    ${room.availableSlots} slots
+                                </span>
+                            </div>
+                            <div class="room-details">
+                                ${room.floor ? `<span><i class="bi bi-layers"></i> Floor ${room.floor}</span>` : ''}
+                                ${room.block ? `<span><i class="bi bi-grid-3x3"></i> ${room.block}</span>` : ''}
+                                ${room.wing ? `<span><i class="bi bi-signpost"></i> ${room.wing}</span>` : ''}
+                            </div>
+                            <div class="room-capacity">
+                                <div class="capacity-bar">
+                                    <div class="capacity-fill" style="width: ${((room.roomCapacity - room.availableSlots) / room.roomCapacity) * 100}%"></div>
+                                </div>
+                                <span>${room.roomCapacity - room.availableSlots}/${room.roomCapacity} occupied</span>
+                            </div>
+                            <div class="room-select-indicator">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        </div>
+                    `).join('');
+
+                containerEl.style.display = 'grid';
+
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                loadingEl.style.display = 'none';
+                noRoomsEl.style.display = 'flex';
+                noRoomsEl.querySelector('p').textContent = 'Error loading rooms. Please try again.';
+            }
+        }
+
+        function selectRoom(roomId, hallId, roomNumber, floor, block, capacity, slots) {
+            // Remove previous selection
+            document.querySelectorAll('.room-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            document.querySelector(`[data-room-id="${roomId}"][data-hall-id="${hallId}"]`).classList.add('selected');
+
+            selectedRoomId = roomId;
+            selectedRoomHallId = hallId;
+
+            // Update preview card
+            document.getElementById('previewRoomNumber').textContent = `Room ${roomNumber || roomId}`;
+            document.getElementById('previewFloor').textContent = floor || '-';
+            document.getElementById('previewBlock').textContent = block || '-';
+            document.getElementById('previewCapacity').textContent = capacity;
+            document.getElementById('previewSlots').textContent = slots;
+            document.getElementById('viewRoomLayoutBtn').href = `/SeatApplication/RoomLayout?roomId=${encodeURIComponent(roomId)}&hallId=${hallId}`;
+
+            // Show seat action section
+            document.getElementById('seatActionSection').style.display = 'block';
+
+            // Scroll to action section
+            document.getElementById('seatActionSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+}

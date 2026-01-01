@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Apply for Room Change";
+    var availableRooms = ViewBag.AvailableRooms as IEnumerable<ResidentialHallManagement.Core.Entities.Room>;
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-arrow-left-right"></i> Apply for Room Change</h2>
+    <hr />
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="ApplyRoomChange" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Select Available Room</label>
+                    @if (availableRooms != null && availableRooms.Any())
+                    {
+                        <div class="row">
+                            @foreach (var room in availableRooms.GroupBy(r => r.Hall))
+                            {
+                                <div class="col-md-12 mb-3">
+                                    <h5>@room.Key?.HallName</h5>
+                                    <div class="row">
+                                        @foreach (var r in room)
+                                        {
+                                            <div class="col-md-4 mb-2">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input room-radio" type="radio"
+                                                                name="selectedRoom" id="room_@(r.RoomId)_@(r.HallId)"
+                                                                value="@r.RoomId|@r.HallId" required>
+                                                            <label class="form-check-label" for="room_@(r.RoomId)_@(r.HallId)">
+                                                                <strong>Room @r.RoomId</strong>
+                                                                @if (!string.IsNullOrEmpty(r.RoomName))
+                                                                {
+                                                                    <br />
+                                                    
+                                                                    <small>@r.RoomName</small>
+                                                                }
+                                                                <br /><small>Wing: @(r.Wing ?? "N/A")</small>
+                                                                <br /><small>Capacity: @r.RoomCapacity</small>
+                                                                <br /><span class="badge bg-success">Available</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> No available rooms at the moment. Please check back
+                            later.
+                        </div>
+                    }
+                </div>
+
+                <input type="hidden" id="requestedRoomId" name="requestedRoomId" />
+                <input type="hidden" id="requestedHallId" name="requestedHallId" />
+
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason for Room Change</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="4" required
+                        placeholder="Please explain why you want to change your room..."></textarea>
+                </div>
+
+                @if (availableRooms != null && availableRooms.Any())
+                {
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Submit Request
+                    </button>
+                }
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.room-radio').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const [roomId, hallId] = this.value.split('|');
+                document.getElementById('requestedRoomId').value = roomId;
+                document.getElementById('requestedHallId').value = hallId;
+            });
+        });
+    </script>
+}

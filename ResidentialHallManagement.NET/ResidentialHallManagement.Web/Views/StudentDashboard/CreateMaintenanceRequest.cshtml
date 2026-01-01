@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Create Maintenance Request";
+    var currentRoom = ViewBag.CurrentRoom as ResidentialHallManagement.Core.Entities.AssignedRoom;
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-tools"></i> Create Maintenance Request</h2>
+    <hr />
+
+    @if (currentRoom != null)
+    {
+        <div class="alert alert-info mb-4">
+            <strong>Your Current Room:</strong> @currentRoom.Room?.Hall?.HallName - Room @currentRoom.RoomId
+        </div>
+
+        <form asp-action="CreateMaintenanceRequest" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label for="issue" class="form-label">Describe the Issue *</label>
+                <textarea class="form-control" id="issue" name="issue" rows="5" required
+                          placeholder="Please provide detailed description of the maintenance issue..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="priority" class="form-label">Priority Level *</label>
+                <select class="form-select" id="priority" name="priority" required>
+                    <option value="">Select priority level</option>
+                    <option value="Low">Low - Can wait a few days</option>
+                    <option value="Medium" selected>Medium - Should be fixed soon</option>
+                    <option value="High">High - Needs attention quickly</option>
+                    <option value="Urgent">Urgent - Immediate attention required</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-warning">
+                <i class="bi bi-send"></i> Submit Request
+            </button>
+            <a asp-action="MaintenanceRequests" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancel
+            </a>
+        </form>
+    }
+</div>

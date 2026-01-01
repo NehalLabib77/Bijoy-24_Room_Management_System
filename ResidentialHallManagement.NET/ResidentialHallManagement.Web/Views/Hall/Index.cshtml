@@ -1,0 +1,72 @@
+@model IEnumerable<ResidentialHallManagement.Core.Entities.Hall>
+
+@{
+    ViewData["Title"] = "Halls";
+}
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Residential Halls</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Hall
+            </a>
+        </div>
+    </div>
+
+    <!-- status messages are shown by _StatusMessage partial -->
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Search" method="get" class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <input type="text" name="name" class="form-control" placeholder="Search by name...">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Hall ID</th>
+                        <th>Hall Name</th>
+                        <th>Type</th>
+                        <th>Capacity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hall in Model)
+                    {
+                        <tr>
+                            <td>@hall.HallId</td>
+                            <td>@hall.HallName</td>
+                            <td>
+                                <span class="badge bg-@(hall.HallType == "MALE" ? "primary" : "danger")">
+                                    @hall.HallType
+                                </span>
+                            </td>
+                            <td>@hall.HallCapacity</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@hall.HallId" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Edit" asp-route-id="@hall.HallId" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@hall.HallId" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,892 @@
+/* Room Layout - Interactive Seat Selection CSS */
+/* Professional Top-View Room Diagram Design */
+
+:root {
+    --room-bg: #f8fafc;
+    --wall-color: #334155;
+    --window-color: #38bdf8;
+    --door-color: #f97316;
+    --furniture-color: #94a3b8;
+    --seat-available: #10b981;
+    --seat-booked: #ef4444;
+    --seat-selected: #2563eb;
+    --seat-held: #f59e0b;
+}
+
+/* ==================== CONTAINER ==================== */
+.room-layout-container {
+    background: var(--light-bg);
+    min-height: 100vh;
+}
+
+/* ==================== BACK LINK ==================== */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-light);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--primary-blue);
+    transform: translateX(-3px);
+}
+
+/* ==================== ROOM HEADER SECTION ==================== */
+.room-header-section {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+    padding: 40px 0;
+}
+
+.room-header-card {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    color: white;
+}
+
+.room-header-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.room-header-icon i {
+    font-size: 36px;
+}
+
+.room-header-info h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.room-meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    backdrop-filter: blur(5px);
+}
+
+/* ==================== INSTRUCTIONS CARD ==================== */
+.instructions-card {
+    display: flex;
+    gap: 20px;
+    background: white;
+    padding: 25px 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin: 25px 0;
+    border-left: 4px solid var(--accent-cyan);
+}
+
+.instruction-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.instruction-icon i {
+    font-size: 24px;
+    color: #d97706;
+}
+
+.instruction-content h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+.instruction-content ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.instruction-content li {
+    font-size: 0.95rem;
+    color: var(--text-medium);
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.instruction-content li:last-child {
+    margin-bottom: 0;
+}
+
+.instruction-content strong {
+    color: var(--text-dark);
+}
+
+/* ==================== ROOM LAYOUT WRAPPER ==================== */
+.room-layout-wrapper {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 40px;
+}
+
+/* ==================== ROOM DIAGRAM ==================== */
+.room-diagram {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: var(--radius-xl);
+    border: 3px solid var(--wall-color);
+    min-height: 500px;
+}
+
+/* Room Walls */
+.room-wall {
+    position: absolute;
+    background: var(--wall-color);
+}
+
+.wall-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wall-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wall-left {
+    top: 40px;
+    bottom: 40px;
+    left: 0;
+    width: 8px;
+}
+
+.wall-right {
+    top: 40px;
+    bottom: 40px;
+    right: 0;
+    width: 8px;
+}
+
+/* Window Section */
+.window-section {
+    display: flex;
+    gap: 30px;
+}
+
+.window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 20px;
+    background: linear-gradient(180deg, var(--window-color), #0ea5e9);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.window i {
+    font-size: 14px;
+}
+
+/* Door Section */
+.door-section {
+    display: flex;
+    justify-content: center;
+}
+
+.door {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 25px;
+    background: linear-gradient(180deg, var(--door-color), #ea580c);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.door i {
+    font-size: 14px;
+}
+
+/* ==================== SEATS CONTAINER ==================== */
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 380px;
+    padding: 20px 0;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    padding: 15px 20px;
+}
+
+.seat-row.window-row {
+    margin-bottom: auto;
+}
+
+.seat-row.door-row {
+    margin-top: auto;
+}
+
+/* Room Center / Furniture */
+.room-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.room-furniture {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.furniture-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--furniture-color);
+}
+
+.furniture-item i {
+    font-size: 28px;
+    color: #64748b;
+}
+
+.furniture-item span {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* ==================== SEAT CARDS ==================== */
+.seat-card {
+    position: relative;
+    width: 160px;
+    background: white;
+    border: 3px solid var(--seat-available);
+    border-radius: var(--radius-md);
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+}
+
+.seat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.seat-card.available {
+    border-color: var(--seat-available);
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.seat-card.available:hover {
+    border-color: #059669;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.seat-card.booked {
+    border-color: var(--seat-booked);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.seat-card.booked:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.seat-card.selected {
+    border-color: var(--seat-selected);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    animation: pulse-selected 2s infinite;
+}
+
+.seat-card.held {
+    border-color: var(--seat-held);
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    cursor: not-allowed;
+}
+
+.seat-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.seat-card.available .seat-icon {
+    background: var(--seat-available);
+}
+
+.seat-card.booked .seat-icon {
+    background: var(--seat-booked);
+}
+
+.seat-card.selected .seat-icon {
+    background: var(--seat-selected);
+}
+
+.seat-card.held .seat-icon {
+    background: var(--seat-held);
+}
+
+.seat-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.seat-info {
+    margin-bottom: 10px;
+}
+
+.seat-number {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.seat-type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    color: var(--text-medium);
+}
+
+.seat-status-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.seat-card.available .seat-status-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+}
+
+.seat-card.booked .seat-status-badge {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+}
+
+.seat-card.selected .seat-status-badge {
+    background: rgba(37, 99, 235, 0.15);
+    color: #1d4ed8;
+}
+
+.seat-card.held .seat-status-badge {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+}
+
+@keyframes pulse-selected {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.1);
+    }
+}
+
+/* Room Labels */
+.room-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-medium);
+    padding: 6px 12px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ==================== SEAT POSITION MARKERS ==================== */
+.seat-position-marker {
+    position: absolute;
+    top: 5px;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 10px;
+    background: #6b7280;
+    color: white;
+    letter-spacing: 0.5px;
+}
+
+.seat-position-marker.left {
+    left: 5px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.seat-position-marker.right {
+    right: 5px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+/* Seat Type Differentiation */
+.seat-card[data-seat-type="WINDOW_LEFT"],
+.seat-card[data-seat-type="WINDOW_RIGHT"] {
+    border-top-width: 5px;
+}
+
+.seat-card[data-seat-type="DOOR_LEFT"],
+.seat-card[data-seat-type="DOOR_RIGHT"] {
+    border-bottom-width: 5px;
+}
+
+.seat-card[data-seat-type="WINDOW_LEFT"] .seat-type,
+.seat-card[data-seat-type="WINDOW_RIGHT"] .seat-type {
+    color: #0284c7;
+}
+
+.seat-card[data-seat-type="DOOR_LEFT"] .seat-type,
+.seat-card[data-seat-type="DOOR_RIGHT"] .seat-type {
+    color: #ea580c;
+}
+
+.label-window {
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--window-color);
+}
+
+.label-door {
+    bottom: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--door-color);
+}
+
+/* ==================== LAYOUT LEGEND ==================== */
+.layout-legend {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid var(--border-color);
+}
+
+.layout-legend h5 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+.legend-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-medium);
+}
+
+.legend-color {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    border: 2px solid;
+}
+
+.legend-color.available {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-color: var(--seat-available);
+}
+
+.legend-color.selected {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: var(--seat-selected);
+}
+
+.legend-color.held {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: var(--seat-held);
+}
+
+.legend-color.booked {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-color: var(--seat-booked);
+}
+
+/* ==================== BOOKING FORM CARD ==================== */
+.booking-form-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 2px solid var(--seat-selected);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px 30px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+    color: white;
+}
+
+.form-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-icon i {
+    font-size: 28px;
+}
+
+.form-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.form-header p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.selected-seat-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 25px 30px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-item span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.timer {
+    color: var(--seat-selected) !important;
+    font-family: 'Courier New', monospace;
+    font-size: 1.3rem !important;
+    background: rgba(37, 99, 235, 0.1);
+    padding: 5px 15px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.form-group {
+    padding: 25px 30px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.form-control {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 4px rgba(44, 90, 160, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 30px;
+    background: #f8fafc;
+    border-top: 1px solid var(--border-color);
+}
+
+.form-actions .btn {
+    flex: 1;
+    padding: 14px 20px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+}
+
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, var(--seat-selected), #1d4ed8);
+    border: none;
+}
+
+.form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, var(--seat-selected));
+    transform: translateY(-2px);
+}
+
+/* ==================== TOAST NOTIFICATION ==================== */
+.toast {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.toast-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+    .room-diagram {
+        padding: 50px 30px;
+    }
+
+    .seat-row {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .seat-card {
+        width: 140px;
+        padding: 15px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .room-header-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .room-meta-tags {
+        justify-content: center;
+    }
+
+    .instructions-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .room-layout-wrapper {
+        padding: 20px;
+    }
+
+    .room-diagram {
+        padding: 40px 15px;
+        min-height: 450px;
+    }
+
+    .wall-top,
+    .wall-bottom {
+        height: 35px;
+    }
+
+    .window,
+    .door {
+        padding: 4px 15px;
+        font-size: 0.7rem;
+    }
+
+    .seat-card {
+        width: 130px;
+        padding: 12px 10px;
+    }
+
+    .seat-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .seat-icon i {
+        font-size: 20px;
+    }
+
+    .seat-number {
+        font-size: 1rem;
+    }
+
+    .furniture-item {
+        padding: 15px 25px;
+    }
+
+    .form-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .selected-seat-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .legend-grid {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .seat-row {
+        gap: 15px;
+    }
+
+    .seat-card {
+        width: 110px;
+        padding: 10px 8px;
+    }
+
+    .seat-icon {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 8px;
+    }
+
+    .seat-icon i {
+        font-size: 16px;
+    }
+
+    .seat-number {
+        font-size: 0.9rem;
+    }
+
+    .seat-type {
+        font-size: 0.7rem;
+    }
+
+    .seat-status-badge {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+
+    .room-center {
+        padding: 15px 5px;
+    }
+
+    .furniture-item {
+        padding: 10px 15px;
+    }
+
+    .furniture-item i {
+        font-size: 20px;
+    }
+}

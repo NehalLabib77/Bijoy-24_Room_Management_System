@@ -1,0 +1,710 @@
+@{
+    ViewData["Title"] = "Room Layout - Seat Selection";
+    var room = ViewBag.Room as ResidentialHallManagement.Core.Entities.Room;
+    var seats = ViewBag.Seats as List<ResidentialHallManagement.Core.Entities.Seat> ?? new
+    List<ResidentialHallManagement.Core.Entities.Seat>();
+    var studentId = ViewBag.StudentId as string;
+}
+
+<link rel="stylesheet" href="~/css/seat-application.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/room-layout.css" asp-append-version="true" />
+
+<div class="room-layout-container">
+    <!-- Back Navigation -->
+    <div class="container py-3">
+        <a asp-action="Index" class="back-link">
+            <i class="bi bi-arrow-left"></i> Back to Room Selection
+        </a>
+    </div>
+
+    <!-- Room Info Header -->
+    <section class="room-header-section">
+        <div class="container">
+            <div class="room-header-card">
+                <div class="room-header-icon">
+                    <i class="bi bi-door-open"></i>
+                </div>
+                <div class="room-header-info">
+                    <h1>Room @room?.RoomNumber</h1>
+                    <div class="room-meta-tags">
+                        <span class="meta-tag hall">
+                            <i class="bi bi-building"></i> @room?.Hall?.HallName
+                        </span>
+                        @if (room?.Floor != null)
+                        {
+                            <span class="meta-tag floor">
+                                <i class="bi bi-layers"></i> Floor @room.Floor
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(room?.Block))
+                        {
+                            <span class="meta-tag block">
+                                <i class="bi bi-grid-3x3"></i> Block @room.Block
+                            </span>
+                        }
+                        <span class="meta-tag capacity">
+                            <i class="bi bi-people"></i> 4 Seats
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructions -->
+    <div class="container">
+        <div class="instructions-card">
+            <div class="instruction-icon">
+                <i class="bi bi-lightbulb"></i>
+            </div>
+            <div class="instruction-content">
+                <h4>How to Select a Seat</h4>
+                <ol>
+                    <li>Click on an <strong>available seat</strong> (shown in green) to select it</li>
+                    <li>Your selection will be <strong>held for 10 minutes</strong></li>
+                    <li>Fill in any remarks and click <strong>"Confirm Booking"</strong> to submit your application</li>
+                    <li>Wait for admin approval to complete the booking</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Layout Visualization -->
+    <div class="container py-4">
+        <div class="room-layout-wrapper">
+            <!-- Room Top View Diagram -->
+            <div class="room-diagram">
+                <!-- Room Walls -->
+                <div class="room-wall wall-top">
+                    <div class="window-section">
+                        <div class="window">
+                            <i class="bi bi-border"></i>
+                            <span>Window</span>
+                        </div>
+                        <div class="window">
+                            <i class="bi bi-border"></i>
+                            <span>Window</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="room-wall wall-left"></div>
+                <div class="room-wall wall-right"></div>
+
+                <div class="room-wall wall-bottom">
+                    <div class="door-section">
+                        <div class="door">
+                            <i class="bi bi-door-open"></i>
+                            <span>Door</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seats Layout - 4 Specific Positions -->
+                <div class="seats-container">
+                    <!-- Window Side Row (Top) - WINDOW_LEFT and WINDOW_RIGHT -->
+                    <div class="seat-row window-row">
+                        @{
+                            // Window Left Seat
+                            var windowLeftSeat = seats.FirstOrDefault(s => s.SeatType == "WINDOW_LEFT");
+                            if (windowLeftSeat != null)
+                            {
+                                var isHeldByMe = windowLeftSeat.HeldByStudentId == studentId;
+                                var statusClass = windowLeftSeat.Status == "Booked" || windowLeftSeat.Status == "Pending" ||
+                                windowLeftSeat.Status == "Reserved" ? "booked" :
+                                windowLeftSeat.IsTemporarilyHeld && !isHeldByMe ? "held" :
+                                isHeldByMe ? "selected" : "available";
+                                <div class="seat-card @statusClass" data-seat-id="@windowLeftSeat.SeatId"
+                                    data-seat-type="WINDOW_LEFT" data-status="@windowLeftSeat.Status"
+                                    data-is-held="@windowLeftSeat.IsTemporarilyHeld.ToString().ToLower()"
+                                    data-held-by="@windowLeftSeat.HeldByStudentId"
+                                    onclick="handleSeatClick(@windowLeftSeat.SeatId, '@statusClass')">
+                                    <div class="seat-position-marker left">LEFT</div>
+                                    <div class="seat-icon">
+                                        <i
+                                            class="bi bi-@(statusClass == "booked" || statusClass == "held" ? "person-fill" : statusClass == "selected" ? "check-circle-fill" : "person")"></i>
+                                    </div>
+                                    <div class="seat-info">
+                                        <span class="seat-number">Seat #1</span>
+                                        <span class="seat-type">
+                                            <i class="bi bi-sun"></i> Window Left
+                                        </span>
+                                    </div>
+                                    <div class="seat-status-badge">
+                                        @if (statusClass == "available")
+                                        {
+                                            <i class="bi bi-check-circle"></i>
+                                
+                                            <span>Available</span>
+                                        }
+                                        else if (statusClass == "selected")
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                
+                                            <span>Selected</span>
+                                        }
+                                        else if (statusClass == "held")
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                
+                                            <span>Held</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle"></i>
+                                
+                                            <span>Booked</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            // Window Right Seat
+                            var windowRightSeat = seats.FirstOrDefault(s => s.SeatType == "WINDOW_RIGHT");
+                            if (windowRightSeat != null)
+                            {
+                                var isHeldByMe = windowRightSeat.HeldByStudentId == studentId;
+                                var statusClass = windowRightSeat.Status == "Booked" || windowRightSeat.Status == "Pending" ||
+                                windowRightSeat.Status == "Reserved" ? "booked" :
+                                windowRightSeat.IsTemporarilyHeld && !isHeldByMe ? "held" :
+                                isHeldByMe ? "selected" : "available";
+                                <div class="seat-card @statusClass" data-seat-id="@windowRightSeat.SeatId"
+                                    data-seat-type="WINDOW_RIGHT" data-status="@windowRightSeat.Status"
+                                    data-is-held="@windowRightSeat.IsTemporarilyHeld.ToString().ToLower()"
+                                    data-held-by="@windowRightSeat.HeldByStudentId"
+                                    onclick="handleSeatClick(@windowRightSeat.SeatId, '@statusClass')">
+                                    <div class="seat-position-marker right">RIGHT</div>
+                                    <div class="seat-icon">
+                                        <i
+                                            class="bi bi-@(statusClass == "booked" || statusClass == "held" ? "person-fill" : statusClass == "selected" ? "check-circle-fill" : "person")"></i>
+                                    </div>
+                                    <div class="seat-info">
+                                        <span class="seat-number">Seat #2</span>
+                                        <span class="seat-type">
+                                            <i class="bi bi-sun"></i> Window Right
+                                        </span>
+                                    </div>
+                                    <div class="seat-status-badge">
+                                        @if (statusClass == "available")
+                                        {
+                                            <i class="bi bi-check-circle"></i>
+                                
+                                            <span>Available</span>
+                                        }
+                                        else if (statusClass == "selected")
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                
+                                            <span>Selected</span>
+                                        }
+                                        else if (statusClass == "held")
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                
+                                            <span>Held</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle"></i>
+                                
+                                            <span>Booked</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Room Center Area -->
+                    <div class="room-center">
+                        <div class="room-furniture">
+                            <div class="furniture-item table">
+                                <i class="bi bi-table"></i>
+                                <span>Study Area</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Door Side Row (Bottom) - DOOR_LEFT and DOOR_RIGHT -->
+                    <div class="seat-row door-row">
+                        @{
+                            // Door Left Seat
+                            var doorLeftSeat = seats.FirstOrDefault(s => s.SeatType == "DOOR_LEFT");
+                            if (doorLeftSeat != null)
+                            {
+                                var isHeldByMe = doorLeftSeat.HeldByStudentId == studentId;
+                                var statusClass = doorLeftSeat.Status == "Booked" || doorLeftSeat.Status == "Pending" ||
+                                doorLeftSeat.Status == "Reserved" ? "booked" :
+                                doorLeftSeat.IsTemporarilyHeld && !isHeldByMe ? "held" :
+                                isHeldByMe ? "selected" : "available";
+                                <div class="seat-card @statusClass" data-seat-id="@doorLeftSeat.SeatId"
+                                    data-seat-type="DOOR_LEFT" data-status="@doorLeftSeat.Status"
+                                    data-is-held="@doorLeftSeat.IsTemporarilyHeld.ToString().ToLower()"
+                                    data-held-by="@doorLeftSeat.HeldByStudentId"
+                                    onclick="handleSeatClick(@doorLeftSeat.SeatId, '@statusClass')">
+                                    <div class="seat-position-marker left">LEFT</div>
+                                    <div class="seat-icon">
+                                        <i
+                                            class="bi bi-@(statusClass == "booked" || statusClass == "held" ? "person-fill" : statusClass == "selected" ? "check-circle-fill" : "person")"></i>
+                                    </div>
+                                    <div class="seat-info">
+                                        <span class="seat-number">Seat #3</span>
+                                        <span class="seat-type">
+                                            <i class="bi bi-door-open"></i> Door Left
+                                        </span>
+                                    </div>
+                                    <div class="seat-status-badge">
+                                        @if (statusClass == "available")
+                                        {
+                                            <i class="bi bi-check-circle"></i>
+                                
+                                            <span>Available</span>
+                                        }
+                                        else if (statusClass == "selected")
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                
+                                            <span>Selected</span>
+                                        }
+                                        else if (statusClass == "held")
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                
+                                            <span>Held</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle"></i>
+                                
+                                            <span>Booked</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            // Door Right Seat
+                            var doorRightSeat = seats.FirstOrDefault(s => s.SeatType == "DOOR_RIGHT");
+                            if (doorRightSeat != null)
+                            {
+                                var isHeldByMe = doorRightSeat.HeldByStudentId == studentId;
+                                var statusClass = doorRightSeat.Status == "Booked" || doorRightSeat.Status == "Pending" ||
+                                doorRightSeat.Status == "Reserved" ? "booked" :
+                                doorRightSeat.IsTemporarilyHeld && !isHeldByMe ? "held" :
+                                isHeldByMe ? "selected" : "available";
+                                <div class="seat-card @statusClass" data-seat-id="@doorRightSeat.SeatId"
+                                    data-seat-type="DOOR_RIGHT" data-status="@doorRightSeat.Status"
+                                    data-is-held="@doorRightSeat.IsTemporarilyHeld.ToString().ToLower()"
+                                    data-held-by="@doorRightSeat.HeldByStudentId"
+                                    onclick="handleSeatClick(@doorRightSeat.SeatId, '@statusClass')">
+                                    <div class="seat-position-marker right">RIGHT</div>
+                                    <div class="seat-icon">
+                                        <i
+                                            class="bi bi-@(statusClass == "booked" || statusClass == "held" ? "person-fill" : statusClass == "selected" ? "check-circle-fill" : "person")"></i>
+                                    </div>
+                                    <div class="seat-info">
+                                        <span class="seat-number">Seat #4</span>
+                                        <span class="seat-type">
+                                            <i class="bi bi-door-open"></i> Door Right
+                                        </span>
+                                    </div>
+                                    <div class="seat-status-badge">
+                                        @if (statusClass == "available")
+                                        {
+                                            <i class="bi bi-check-circle"></i>
+                                
+                                            <span>Available</span>
+                                        }
+                                        else if (statusClass == "selected")
+                                        {
+                                            <i class="bi bi-check-circle-fill"></i>
+                                
+                                            <span>Selected</span>
+                                        }
+                                        else if (statusClass == "held")
+                                        {
+                                            <i class="bi bi-hourglass-split"></i>
+                                
+                                            <span>Held</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle"></i>
+                                
+                                            <span>Booked</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Room Labels -->
+                <div class="room-label label-window">
+                    <i class="bi bi-sun"></i> Window Side
+                </div>
+                <div class="room-label label-door">
+                    <i class="bi bi-door-open"></i> Door Side
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="layout-legend">
+                <h5><i class="bi bi-info-circle"></i> Legend</h5>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="legend-color available"></span>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color selected"></span>
+                        <span>Your Selection</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color held"></span>
+                        <span>Held by Others</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color booked"></span>
+                        <span>Already Booked</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="container pb-5">
+        <div class="booking-form-card" id="bookingForm" style="display: none;">
+            <div class="form-header">
+                <div class="form-icon">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+                <div>
+                    <h3>Confirm Your Seat Selection</h3>
+                    <p>Complete your application by filling the form below</p>
+                </div>
+            </div>
+
+            <div class="selected-seat-summary">
+                <div class="summary-item">
+                    <label>Selected Seat</label>
+                    <span id="selectedSeatLabel">-</span>
+                </div>
+                <div class="summary-item">
+                    <label>Seat Type</label>
+                    <span id="selectedSeatType">-</span>
+                </div>
+                <div class="summary-item">
+                    <label>Hold Expires In</label>
+                    <span id="holdTimer" class="timer">10:00</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks" class="form-label">
+                    <i class="bi bi-chat-dots"></i> Additional Remarks (Optional)
+                </label>
+                <textarea id="remarks" class="form-control" rows="3"
+                    placeholder="Any special requirements or preferences..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline-secondary" onclick="cancelSelection()">
+                    <i class="bi bi-x-lg"></i> Cancel Selection
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" onclick="submitApplication()">
+                    <i class="bi bi-check2-circle"></i> Confirm Booking
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-bell me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const roomId = '@room?.RoomId';
+        const hallId = @(room?.HallId ?? 0);
+        const studentId = '@studentId';
+        let selectedSeatId = null;
+        let holdExpiry = null;
+        let timerInterval = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if there's already a held seat
+            const selectedSeat = document.querySelector('.seat-card.selected');
+            if (selectedSeat) {
+                selectedSeatId = parseInt(selectedSeat.dataset.seatId);
+                showBookingForm(selectedSeat);
+                startTimer();
+            }
+
+            // Start polling for seat status updates
+            setInterval(refreshSeatStatus, 30000); // Every 30 seconds
+        });
+
+        async function handleSeatClick(seatId, status) {
+            if (status === 'booked' || status === 'held') {
+                showNotification('This seat is not available', 'warning');
+                return;
+            }
+
+            if (status === 'selected' && selectedSeatId === seatId) {
+                // Already selected, show booking form
+                document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            // Hold the new seat
+            await holdSeat(seatId);
+        }
+
+        async function holdSeat(seatId) {
+            try {
+                const response = await fetch('/SeatApplication/HoldSeat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ seatId: seatId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    selectedSeatId = seatId;
+                    holdExpiry = new Date(result.holdExpiry);
+
+                    // Update UI
+                    await refreshSeatStatus();
+
+                    const seatCard = document.querySelector(`[data-seat-id="${seatId}"]`);
+                    showBookingForm(seatCard);
+                    startTimer();
+
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error holding seat:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            }
+        }
+
+        async function cancelSelection() {
+            if (!selectedSeatId) return;
+
+            try {
+                const response = await fetch('/SeatApplication/ReleaseSeat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({ seatId: selectedSeatId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    selectedSeatId = null;
+                    holdExpiry = null;
+                    clearInterval(timerInterval);
+
+                    // Update UI
+                    await refreshSeatStatus();
+                    document.getElementById('bookingForm').style.display = 'none';
+
+                    showNotification('Selection cancelled', 'info');
+                }
+            } catch (error) {
+                console.error('Error releasing seat:', error);
+            }
+        }
+
+        async function submitApplication() {
+            if (!selectedSeatId) {
+                showNotification('Please select a seat first', 'warning');
+                return;
+            }
+
+            const remarks = document.getElementById('remarks').value;
+
+            try {
+                const response = await fetch('/SeatApplication/SubmitApplication', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    body: JSON.stringify({
+                        seatId: selectedSeatId,
+                        remarks: remarks
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(result.message, 'success');
+
+                    // Redirect to application status page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/SeatApplication/MyApplication';
+                    }, 2000);
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting application:', error);
+                showNotification('An error occurred. Please try again.', 'error');
+            }
+        }
+
+        async function refreshSeatStatus() {
+            try {
+                const response = await fetch(`/SeatApplication/GetSeatStatus?roomId=${encodeURIComponent(roomId)}&hallId=${hallId}`);
+                const seats = await response.json();
+
+                seats.forEach(seat => {
+                    const seatCard = document.querySelector(`[data-seat-id="${seat.seatId}"]`);
+                    if (!seatCard) return;
+
+                    const isHeldByMe = seat.heldByStudentId === studentId;
+                    let statusClass = seat.status === 'Booked' || seat.status === 'Reserved' ? 'booked' :
+                        seat.isTemporarilyHeld && !isHeldByMe ? 'held' :
+                            isHeldByMe ? 'selected' : 'available';
+
+                    seatCard.className = `seat-card ${statusClass}`;
+                    seatCard.dataset.status = seat.status;
+                    seatCard.dataset.isHeld = seat.isTemporarilyHeld.toString().toLowerCase();
+                    seatCard.dataset.heldBy = seat.heldByStudentId || '';
+
+                    // Update icon and badge
+                    const icon = seatCard.querySelector('.seat-icon i');
+                    const badge = seatCard.querySelector('.seat-status-badge');
+
+                    icon.className = `bi bi-${statusClass === 'booked' || statusClass === 'held' ? 'person-fill' :
+                        statusClass === 'selected' ? 'check-circle-fill' : 'person'}`;
+
+                    if (statusClass === 'available') {
+                        badge.innerHTML = '<i class="bi bi-check-circle"></i><span>Available</span>';
+                    } else if (statusClass === 'selected') {
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill"></i><span>Selected</span>';
+                    } else if (statusClass === 'held') {
+                        badge.innerHTML = '<i class="bi bi-hourglass-split"></i><span>Held</span>';
+                    } else {
+                        badge.innerHTML = '<i class="bi bi-x-circle"></i><span>Booked</span>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error refreshing seat status:', error);
+            }
+        }
+
+        function showBookingForm(seatCard) {
+            const seatNumber = seatCard.querySelector('.seat-number').textContent;
+            const seatType = seatCard.dataset.seatType;
+
+            // Convert seat type to display format
+            const seatTypeDisplay = {
+                'WINDOW_LEFT': 'Window Side - Left Position',
+                'WINDOW_RIGHT': 'Window Side - Right Position',
+                'DOOR_LEFT': 'Door Side - Left Position',
+                'DOOR_RIGHT': 'Door Side - Right Position'
+            }[seatType] || seatCard.querySelector('.seat-type').textContent.trim();
+
+            document.getElementById('selectedSeatLabel').textContent = seatNumber;
+            document.getElementById('selectedSeatType').textContent = seatTypeDisplay;
+            document.getElementById('bookingForm').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+
+            if (!holdExpiry) {
+                holdExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+            }
+
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = holdExpiry - now;
+
+                if (diff <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('holdTimer').textContent = 'Expired';
+                    showNotification('Your seat hold has expired', 'warning');
+                    refreshSeatStatus();
+                    document.getElementById('bookingForm').style.display = 'none';
+                    return;
+                }
+
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                document.getElementById('holdTimer').textContent =
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showNotification(message, type) {
+            const toast = document.getElementById('notificationToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastTitle.textContent = type === 'success' ? 'Success' :
+                type === 'error' ? 'Error' :
+                    type === 'warning' ? 'Warning' : 'Info';
+            toastMessage.textContent = message;
+
+            toast.className = `toast bg-${type === 'success' ? 'success' :
+                type === 'error' ? 'danger' :
+                    type === 'warning' ? 'warning' : 'info'} text-white`;
+
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function getAntiForgeryToken() {
+            // Try to get from cookie
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === '.AspNetCore.Antiforgery' || name.startsWith('XSRF-TOKEN')) {
+                    return decodeURIComponent(value);
+                }
+            }
+            // Try meta tag
+            const meta = document.querySelector('meta[name="RequestVerificationToken"]');
+            if (meta) return meta.content;
+
+            // Try hidden input
+            const input = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (input) return input.value;
+
+            return '';
+        }
+    </script>
+
+    <!-- Anti-forgery token for AJAX requests -->
+    @Html.AntiForgeryToken()
+}

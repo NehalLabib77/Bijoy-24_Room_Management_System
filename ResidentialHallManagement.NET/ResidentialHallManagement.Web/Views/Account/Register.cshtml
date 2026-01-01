@@ -1,0 +1,174 @@
+@model ResidentialHallManagement.Web.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Student Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-7">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white"
+                    style="background: linear-gradient(135deg, #00a86b 0%, #05c46e 100%);">
+                    <div class="text-center py-3">
+                        <h2 class="mb-1"><i class="bi bi-person-plus"></i> Student Registration</h2>
+                        <p class="mb-0">Create your account in BIJOY-24</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-4">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Important:</strong> You must have a valid
+                        <strong>Boarder Number</strong> assigned by the administration in the Boarder Registry to
+                        register. Your Student ID must match the registered boarder number.
+                    </div>
+
+                    <form asp-action="Register" asp-controller="Account" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                        <!-- Hidden field - Students always register as Student -->
+                        <input asp-for="UserType" type="hidden" value="Student" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Username" class="form-label fw-bold">Username <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="Username" class="form-control" placeholder="Choose a username"
+                                        required />
+                                    <span asp-validation-for="Username" class="text-danger"></span>
+                                    <small class="text-muted">Alphanumeric, min 3 characters</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold">Email <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="Email" type="email" class="form-control"
+                                        placeholder="your@email.com" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="StudentId" class="form-label fw-bold">Student ID <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="StudentId" class="form-control" placeholder="e.g., 1234567"
+                                        required />
+                                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="BoarderNo" class="form-label fw-bold">Boarder No <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="BoarderNo" class="form-control"
+                                        placeholder="Your assigned boarder number" required />
+                                    <span asp-validation-for="BoarderNo" class="text-danger"></span>
+                                    <small class="text-muted">Must match your assigned boarder number</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Faculty" class="form-label fw-bold">Faculty <span
+                                            class="text-danger">*</span></label>
+                                    <select asp-for="Faculty" class="form-select" required>
+                                        <option value="">-- Select Faculty --</option>
+                                        @{
+                                            var faculties = ViewBag.Faculties as List<string> ?? new List<string> {
+                                                                                "Engineering", "Science", "Arts", "Business Studies", "Law", "Medicine" };
+                                            foreach (var faculty in faculties)
+                                            {
+                                                <option value="@faculty">@faculty</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Faculty" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Semester" class="form-label fw-bold">Semester <span
+                                            class="text-danger">*</span></label>
+                                    <select asp-for="Semester" class="form-select" required>
+                                        <option value="">-- Select Semester --</option>
+                                        <option value="1">1st Semester</option>
+                                        <option value="2">2nd Semester</option>
+                                        <option value="3">3rd Semester</option>
+                                        <option value="4">4th Semester</option>
+                                        <option value="5">5th Semester</option>
+                                        <option value="6">6th Semester</option>
+                                        <option value="7">7th Semester</option>
+                                        <option value="8">8th Semester</option>
+                                        <option value="9">9th Semester</option>
+                                        <option value="10">10th Semester</option>
+                                    </select>
+                                    <span asp-validation-for="Semester" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name <span
+                                    class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Your full name" required />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Password" class="form-label fw-bold">Password <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="Password" type="password" class="form-control"
+                                        placeholder="Create a strong password" required />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                    <small class="text-muted">Min 6 characters, mix of letters and numbers</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ConfirmPassword" class="form-label fw-bold">Confirm Password <span
+                                            class="text-danger">*</span></label>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                        placeholder="Confirm your password" required />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold">
+                                <i class="bi bi-check-circle"></i> Create Account
+                            </button>
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Login
+                            </a>
+                        </div>
+
+                        <p class="text-center mt-3 text-muted">
+                            Already have an account? <a href="@Url.Action("Login", "Account")">Login here</a>
+                        </p>
+                    </form>
+                </div>
+                <div class="card-footer text-muted text-center py-3">
+                    <small>© 2025 BIJOY-24 Residential Hall Management System</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

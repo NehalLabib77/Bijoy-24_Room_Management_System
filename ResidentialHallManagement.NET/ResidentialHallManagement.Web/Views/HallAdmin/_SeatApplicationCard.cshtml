@@ -1,0 +1,249 @@
+@model ResidentialHallManagement.Core.Entities.SeatApplication
+
+@{
+    var seatTypeClass = Model.Seat?.SeatType switch
+    {
+        "WINDOW_LEFT" => "window-left",
+        "WINDOW_RIGHT" => "window-right",
+        "DOOR_LEFT" => "door-left",
+        "DOOR_RIGHT" => "door-right",
+        _ => ""
+    };
+
+    var seatTypeIcon = Model.Seat?.SeatType?.StartsWith("WINDOW") == true ? "bi-sun" : "bi-door-open";
+    var seatTypeDisplay = Model.Seat?.SeatType switch
+    {
+        "WINDOW_LEFT" => "Window - Left",
+        "WINDOW_RIGHT" => "Window - Right",
+        "DOOR_LEFT" => "Door - Left",
+        "DOOR_RIGHT" => "Door - Right",
+        _ => Model.Seat?.SeatLabel ?? "Unknown"
+    };
+
+    var statusClass = Model.Status?.ToLower() ?? "pending";
+}
+
+<div class="col-md-6 col-lg-4 mb-4 app-card-wrapper" data-student-id="@Model.StudentId.ToLower()"
+    data-student-name="@(Model.Student?.StudentName?.ToLower() ?? "")"
+    data-room-number="@(Model.Seat?.Room?.RoomNumber?.ToLower() ?? "")" data-seat-type="@Model.Seat?.SeatType"
+    data-status="@Model.Status?.ToLower()" data-date="@Model.ApplicationDate.ToString("yyyy-MM-dd")">
+    <div class="card app-card @statusClass h-100">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="student-avatar"
+                        style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-person-fill" style="font-size: 24px;"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">@Model.StudentId</h5>
+                        <small class="opacity-75">@(Model.Student?.StudentName ?? "Unknown")</small>
+                    </div>
+                </div>
+                <span class="status-badge @statusClass">
+                    @if (Model.Status == "Pending")
+                    {
+                        <i class="bi bi-hourglass-split me-1"></i>
+                    }
+                    else if (Model.Status == "Approved")
+                    {
+                        <i class="bi bi-check-circle me-1"></i>
+                    }
+                    else if (Model.Status == "Rejected")
+                    {
+                        <i class="bi bi-x-circle me-1"></i>
+                    }
+                    @Model.Status
+                </span>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <!-- Room & Seat Info -->
+            <div class="room-mini mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold"><i class="bi bi-door-closed me-2"></i>Room @(Model.Seat?.Room?.RoomNumber ??
+                                                "N/A")</span>
+                    <span class="text-muted">Floor @(Model.Seat?.Room?.Floor ?? 0)</span>
+                </div>
+                <div class="d-flex justify-content-center gap-3 py-2">
+                    <!-- Window Side -->
+                    <div class="text-center">
+                        <small class="d-block mb-1 text-muted">Window</small>
+                        <div class="d-flex gap-2">
+                            <div class="seat-indicator @(Model.Seat?.SeatType == "WINDOW_LEFT" ? "selected" : "available")"
+                                title="Window Left">
+                                <i class="bi bi-sun"></i>
+                            </div>
+                            <div class="seat-indicator @(Model.Seat?.SeatType == "WINDOW_RIGHT" ? "selected" : "available")"
+                                title="Window Right">
+                                <i class="bi bi-sun"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Door Side -->
+                    <div class="text-center">
+                        <small class="d-block mb-1 text-muted">Door</small>
+                        <div class="d-flex gap-2">
+                            <div class="seat-indicator @(Model.Seat?.SeatType == "DOOR_LEFT" ? "selected" : "available")"
+                                title="Door Left">
+                                <i class="bi bi-door-open"></i>
+                            </div>
+                            <div class="seat-indicator @(Model.Seat?.SeatType == "DOOR_RIGHT" ? "selected" : "available")"
+                                title="Door Right">
+                                <i class="bi bi-door-open"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label"><i class="bi @seatTypeIcon"></i>Requested Seat</span>
+                <span class="seat-badge @seatTypeClass">
+                    <i class="bi @seatTypeIcon"></i> @seatTypeDisplay
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="bi bi-mortarboard"></i>Department</span>
+                <span>@(Model.Student?.Department ?? "N/A")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="bi bi-book"></i>Faculty</span>
+                <span>@(Model.Student?.Faculty ?? "N/A")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="bi bi-calendar-event"></i>Applied</span>
+                <span>@Model.ApplicationDate.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
+            @if (Model.Status != "Pending" && Model.ProcessedDate.HasValue)
+            {
+                <div class="info-row">
+                    <span class="info-label"><i class="bi bi-calendar-check"></i>Processed</span>
+                    <span>@Model.ProcessedDate.Value.ToString("dd MMM yyyy, HH:mm")</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.StudentRemarks))
+            {
+                <div class="info-row">
+                    <span class="info-label"><i class="bi bi-chat-dots"></i>Student Remarks</span>
+                </div>
+                <div class="text-muted small ps-4 pb-2">@Model.StudentRemarks</div>
+            }
+            @if (!string.IsNullOrEmpty(Model.AdminRemarks) && Model.Status != "Pending")
+            {
+                <div class="info-row">
+                    <span class="info-label"><i class="bi bi-chat-square-text"></i>Admin Remarks</span>
+                </div>
+                <div class="text-muted small ps-4">@Model.AdminRemarks</div>
+            }
+        </div>
+
+        @if (Model.Status == "Pending")
+        {
+            <div class="card-footer bg-white border-0 p-4">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success action-btn" data-bs-toggle="modal"
+                        data-bs-target="#approveModal_@Model.ApplicationId">
+                        <i class="bi bi-check-circle me-2"></i>Approve & Book Seat
+                    </button>
+                    <button class="btn btn-outline-danger action-btn" data-bs-toggle="modal"
+                        data-bs-target="#rejectModal_@Model.ApplicationId">
+                        <i class="bi bi-x-circle me-2"></i>Reject
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.Status == "Pending")
+{
+    <!-- Approve Modal -->
+    <div class="modal fade" id="approveModal_@Model.ApplicationId" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-header text-white"
+                    style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
+                    <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Approve Seat Application</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="ApproveSeatApplication" asp-controller="HallAdmin" method="post">
+                    <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
+                    <div class="modal-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mb-3"
+                                style="width: 80px; height: 80px;">
+                                <i class="bi bi-grid-3x3-gap text-success" style="font-size: 40px;"></i>
+                            </div>
+                        </div>
+                        <div class="alert alert-success" style="border-radius: 12px;">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="bi bi-person-check" style="font-size: 24px;"></i>
+                                <div>
+                                    <strong>@(Model.Student?.StudentName ?? Model.StudentId)</strong><br>
+                                    <span class="text-muted">will be assigned to</span><br>
+                                    <span class="badge bg-primary mt-1">Room @(Model.Seat?.Room?.RoomNumber ?? "N/A")</span>
+                                    <span class="badge @(seatTypeClass.Replace("-", " bg-")) mt-1">@seatTypeDisplay</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning" style="border-radius: 12px;">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Approving this will lock the seat and automatically reject other
+                            pending applications for this seat.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-light btn-lg" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Approve & Lock Seat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal_@Model.ApplicationId" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-header text-white"
+                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none;">
+                    <h5 class="modal-title"><i class="bi bi-x-circle me-2"></i>Reject Seat Application</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="RejectSeatApplication" asp-controller="HallAdmin" method="post">
+                    <input type="hidden" name="applicationId" value="@Model.ApplicationId" />
+                    <div class="modal-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mb-3"
+                                style="width: 80px; height: 80px;">
+                                <i class="bi bi-x-lg text-danger" style="font-size: 40px;"></i>
+                            </div>
+                        </div>
+                        <div class="alert alert-info" style="border-radius: 12px;">
+                            <strong>Rejecting application from:</strong><br>
+                            @(Model.Student?.StudentName ?? Model.StudentId) for @seatTypeDisplay in Room
+                            @(Model.Seat?.Room?.RoomNumber ?? "N/A")
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Reason for Rejection <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control" name="remarks" rows="4"
+                            placeholder="Please provide a clear reason for rejecting this application..." required
+                            style="border-radius: 12px;"></textarea>
+                            <small class="text-muted">This message will be visible to the student</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-light btn-lg" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-x-circle me-2"></i>Reject Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Database Statistics";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Database Statistics</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active">Database Statistics</li>
+    </ol>
+
+    @if (ViewBag.Stats != null)
+    {
+        <div class="row">
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-primary text-white mb-4">
+                    <div class="card-body">
+                        <h4 class="mb-0">@ViewBag.Stats.TotalHalls</h4>
+                        <div>Total Halls</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body">
+                        <h4 class="mb-0">@ViewBag.Stats.TotalRooms</h4>
+                        <div>Total Rooms</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-success text-white mb-4">
+                    <div class="card-body">
+                        <h4 class="mb-0">@ViewBag.Stats.TotalStudents</h4>
+                        <div>Total Students</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-danger text-white mb-4">
+                    <div class="card-body">
+                        <h4 class="mb-0">@ViewBag.Stats.TotalAdmins</h4>
+                        <div>Total Admins</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Boarder Entries
+                    </div>
+                    <div class="card-body">
+                        <h5>@ViewBag.Stats.TotalBoarderEntries</h5>
+                        <p>Total boarder registry entries in the system.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <a class="btn btn-primary" asp-controller="Admin" asp-action="Dashboard">Back to Dashboard</a>
+        </div>
+    </div>
+</div>

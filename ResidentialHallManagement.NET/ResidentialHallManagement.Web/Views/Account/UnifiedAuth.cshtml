@@ -1,0 +1,808 @@
+@model ResidentialHallManagement.Web.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login / Register";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - BIJOY-24 Hall Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 550px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .home-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .home-link:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Role Selector Tabs */
+        .role-selector {
+            display: flex;
+            background: #f8f9fa;
+            padding: 8px;
+            gap: 8px;
+        }
+
+        .role-tab {
+            flex: 1;
+            padding: 16px 20px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .role-tab:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: #495057;
+        }
+
+        .role-tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .role-tab i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        /* Content Area */
+        .auth-content {
+            padding: 48px 40px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 36px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: #718096;
+            font-size: 15px;
+        }
+
+        /* Form Container */
+        .form-container {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .form-content {
+            display: none;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        .form-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: #f8f9fa;
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 16px;
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 48px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            font-size: 14px;
+            color: #4a5568;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary i {
+            margin-right: 8px;
+        }
+
+        /* Registration Link */
+        .register-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .register-link p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .register-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c53030;
+            border: 1px solid #fc8181;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #68d391;
+        }
+
+        .alert-info {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+
+        .alert i {
+            margin-right: 8px;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 640px) {
+            .auth-wrapper {
+                max-width: 100%;
+                border-radius: 16px;
+            }
+
+            .auth-content {
+                padding: 32px 24px;
+            }
+
+            .role-tab {
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+
+            .role-tab i {
+                display: block;
+                margin: 0 0 4px 0;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="@Url.Action("Index", "Home")" class="home-link">
+        <i class="fas fa-home"></i> Home
+    </a>
+
+    <div class="auth-wrapper">
+        <!-- Horizontal Role Selector -->
+        <div class="role-selector">
+            <button class="role-tab active" data-role="system-admin" onclick="switchRole('system-admin')">
+                <i class="fas fa-user-shield"></i>
+                <span>System Admin</span>
+            </button>
+            <button class="role-tab" data-role="hall-admin" onclick="switchRole('hall-admin')">
+                <i class="fas fa-building"></i>
+                <span>Hall Admin</span>
+            </button>
+            <button class="role-tab" data-role="student" onclick="switchRole('student')">
+                <i class="fas fa-user-graduate"></i>
+                <span>Student</span>
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="auth-content">
+            <!-- Page Header -->
+            <div class="auth-header">
+                <h1 id="page-heading">System Admin Login</h1>
+                <p id="page-subtitle">Secure access to administrative dashboard</p>
+            </div>
+
+            <!-- Error/Success Messages -->
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    @TempData["Error"]
+                </div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    @TempData["Success"]
+                </div>
+            }
+
+            <!-- ====== SYSTEM ADMIN ====== -->
+            <div class="form-container active" id="system-admin-form">
+                <!-- Login Only (No Registration) -->
+                <div class="form-content active">
+                    <form asp-action="Login" method="post">
+                        <input type="hidden" name="UserType" value="Admin" />
+
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-user-shield"></i>
+                                <input type="text" name="Username" class="form-control" required
+                                    placeholder="Enter admin username" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="Password" class="form-control" required
+                                    placeholder="Enter password" />
+                            </div>
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" name="RememberMe" id="rememberAdmin" value="true" />
+                            <label for="rememberAdmin">Keep me signed in</label>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+                        </button>
+                    </form>
+
+                    <div class="alert alert-info" style="margin-top: 24px;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Administrators Only:</strong> System admin credentials are managed by database
+                        administrators. Contact IT support if you need assistance.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== HALL ADMIN ====== -->
+            <div class="form-container" id="hall-admin-form">
+                <!-- Login/Register Toggle -->
+                <div class="form-toggle">
+                    <button class="toggle-btn active" onclick="showForm('hall-admin', 'login')">Login</button>
+                    <button class="toggle-btn" onclick="showForm('hall-admin', 'register')">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div class="form-content active" id="hall-admin-login">
+                    <form asp-action="Login" method="post">
+                        <input type="hidden" name="UserType" value="HallAdmin" />
+
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="Username" class="form-control" required
+                                    placeholder="Enter username" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="Password" class="form-control" required
+                                    placeholder="Enter password" />
+                            </div>
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" name="RememberMe" id="rememberHallAdmin" value="true" />
+                            <label for="rememberHallAdmin">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+
+                    <div class="register-link">
+                        <p>Not registered? <a href="#"
+                                onclick="showForm('hall-admin', 'register'); return false;">Register here</a></p>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-content" id="hall-admin-register">
+                    <form asp-action="RegisterHallAdmin" method="post">
+                        <input type="hidden" name="UserType" value="HallAdmin" />
+
+                        <div class="form-group">
+                            <label class="form-label">Registration Token</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-key"></i>
+                                <input type="text" name="RegistrationToken" class="form-control" required
+                                    placeholder="Enter registration token" />
+                            </div>
+                            <small style="color: #718096; font-size: 12px;">Required from system administrator</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="FullName" class="form-control" required
+                                placeholder="Enter your full name" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="Email" class="form-control" required
+                                placeholder="your.email@example.com" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="Username" class="form-control" required
+                                placeholder="Choose a username" />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="Password" class="form-control" required
+                                    placeholder="Create password" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="ConfirmPassword" class="form-control" required
+                                    placeholder="Confirm password" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+
+                    <div class="register-link">
+                        <p>Already registered? <a href="#"
+                                onclick="showForm('hall-admin', 'login'); return false;">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== STUDENT ====== -->
+            <div class="form-container" id="student-form">
+                <!-- Login/Register Toggle -->
+                <div class="form-toggle">
+                    <button class="toggle-btn active" onclick="showForm('student', 'login')">Login</button>
+                    <button class="toggle-btn" onclick="showForm('student', 'register')">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div class="form-content active" id="student-login">
+                    <form asp-action="Login" method="post">
+                        <input type="hidden" name="UserType" value="Student" />
+
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="Username" class="form-control" required
+                                    placeholder="Enter username" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="Password" class="form-control" required
+                                    placeholder="Enter password" />
+                            </div>
+                        </div>
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" name="RememberMe" id="rememberStudent" value="true" />
+                            <label for="rememberStudent">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </form>
+
+                    <div class="register-link">
+                        <p>Not registered? <a href="#" onclick="showForm('student', 'register'); return false;">Register
+                                here</a></p>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-content" id="student-register">
+                    <form asp-action="Register" method="post">
+                        <input type="hidden" name="UserType" value="Student" />
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Student ID</label>
+                                <input type="text" name="StudentId" class="form-control" required
+                                    placeholder="Student ID" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Boarder No</label>
+                                <input type="text" name="BoarderNo" class="form-control" required
+                                    placeholder="Boarder No" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="FullName" class="form-control" required
+                                placeholder="Enter your full name" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="Email" class="form-control" required
+                                placeholder="your.email@example.com" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="Username" class="form-control" required
+                                placeholder="Choose a username" />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Faculty</label>
+                                <select name="Faculty" class="form-control" required>
+                                    <option value="">Select Faculty</option>
+                                    @{
+                                        var faculties = ViewBag.Faculties as List<string> ?? new List<string> {
+                                                                        "Engineering", "Science", "Arts", "Business Studies", "Law", "Medicine" };
+                                        foreach (var faculty in faculties)
+                                        {
+                                            <option value="@faculty">@faculty</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Semester</label>
+                                <input type="number" name="Semester" class="form-control" required min="1" max="12"
+                                    placeholder="1-12" />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="Password" class="form-control" required
+                                    placeholder="Create password" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="ConfirmPassword" class="form-control" required
+                                    placeholder="Confirm password" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                    </form>
+
+                    <div class="register-link">
+                        <p>Already registered? <a href="#" onclick="showForm('student', 'login'); return false;">Login
+                                here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Role configuration
+        const roleConfig = {
+            'system-admin': {
+                heading: 'System Admin Login',
+                subtitle: 'Secure access to administrative dashboard'
+            },
+            'hall-admin': {
+                heading: 'Hall Admin Login',
+                subtitle: 'Manage your residential hall'
+            },
+            'student': {
+                heading: 'Student Login',
+                subtitle: 'Access your student portal'
+            }
+        };
+
+        // Switch between roles with smooth transition
+        function switchRole(role) {
+            // Update tabs
+            document.querySelectorAll('.role-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-role="${role}"]`).classList.add('active');
+
+            // Update heading with animation
+            const heading = document.getElementById('page-heading');
+            const subtitle = document.getElementById('page-subtitle');
+
+            heading.style.opacity = '0';
+            subtitle.style.opacity = '0';
+
+            setTimeout(() => {
+                heading.textContent = roleConfig[role].heading;
+                subtitle.textContent = roleConfig[role].subtitle;
+                heading.style.opacity = '1';
+                subtitle.style.opacity = '1';
+            }, 200);
+
+            // Hide all forms
+            document.querySelectorAll('.form-container').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Show selected role form
+            document.getElementById(`${role}-form`).classList.add('active');
+        }
+
+        // Toggle between login and register within a role
+        function showForm(role, type) {
+            const container = document.getElementById(`${role}-form`);
+
+            // Update toggle buttons
+            container.querySelectorAll('.toggle-btn').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if ((type === 'login' && index === 0) || (type === 'register' && index === 1)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update heading
+            const heading = document.getElementById('page-heading');
+            const subtitle = document.getElementById('page-subtitle');
+
+            if (type === 'register') {
+                heading.textContent = role === 'hall-admin' ? 'Hall Admin Registration' : 'Student Registration';
+                subtitle.textContent = 'Create your new account';
+            } else {
+                heading.textContent = roleConfig[role].heading;
+                subtitle.textContent = roleConfig[role].subtitle;
+            }
+
+            // Show/hide forms
+            const loginForm = document.getElementById(`${role}-login`);
+            const registerForm = document.getElementById(`${role}-register`);
+
+            if (type === 'login') {
+                loginForm.classList.add('active');
+                if (registerForm) registerForm.classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                if (registerForm) registerForm.classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

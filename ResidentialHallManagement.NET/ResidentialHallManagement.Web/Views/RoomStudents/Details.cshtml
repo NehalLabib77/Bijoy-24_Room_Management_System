@@ -1,0 +1,171 @@
+@model ResidentialHallManagement.Web.ViewModels.RoomStudentViewModel
+@{
+    ViewData["Title"] = $"Students in {Model.RoomName}";
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2>@Model.RoomName - Student Details</h2>
+            <p class="text-muted">@Model.HallName</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Rooms
+            </a>
+        </div>
+    </div>
+
+    <!-- Room Information -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Room Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Room Number:</strong> @(Model.RoomNumber ?? "N/A")</p>
+                    <p><strong>Wing:</strong> @(Model.Wing ?? "N/A")</p>
+                    <p><strong>Block:</strong> @(Model.Block ?? "N/A")</p>
+                    <p><strong>Floor:</strong> @(Model.Floor?.ToString() ?? "N/A")</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Capacity:</strong> @Model.Capacity students</p>
+                    <p><strong>Occupied:</strong> @Model.OccupiedSlots students</p>
+                    <p><strong>Available:</strong> @Model.AvailableSlots slots</p>
+                    <p><strong>Status:</strong> <span
+                            class="badge bg-@(Model.Status == "Available" ? "success" : Model.Status == "Occupied" ? "warning" : "secondary")">@Model.Status</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Students in this Room (@Model.Students.Count)</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Students.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Name</th>
+                                <th style="width: 12%;">Student ID</th>
+                                <th style="width: 10%;">Boarder No</th>
+                                <th style="width: 12%;">Faculty</th>
+                                <th style="width: 10%;">Semester</th>
+                                <th style="width: 12%;">Contact</th>
+                                <th style="width: 14%;">Start Date</th>
+                                <th style="width: 15%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in Model.Students)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@student.StudentName</strong>
+                                        <br />
+                                        <small class="text-muted">Bed: @(student.BedNumber ?? "-")</small>
+                                    </td>
+                                    <td><code>@student.StudentId</code></td>
+                                    <td><span class="badge bg-primary">@student.BoarderNo</span></td>
+                                    <td>@student.Faculty</td>
+                                    <td>@student.Semester</td>
+                                    <td>
+                                        @student.Mobile
+                                        @if (!string.IsNullOrEmpty(student.Email))
+                                        {
+                                            <br />
+
+                                            <small class="text-muted">@student.Email</small>
+                                        }
+                                    </td>
+                                    <td>@student.StartDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <form asp-action="RemoveStudent" asp-route-studentId="@student.StudentId"
+                                            asp-route-roomId="@Model.RoomId" asp-route-hallId="@Model.HallId" method="post"
+                                            style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                title="Remove this student from room"
+                                                onclick="return confirm('Are you sure you want to remove @student.StudentName from @Model.RoomName?');">
+                                                <i class="bi bi-trash"></i> Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Roommates Summary -->
+                <div class="p-4 bg-light">
+                    <h6>Quick Contact Reference</h6>
+                    <div class="row">
+                        @foreach (var student in Model.Students)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-2">@student.StudentName</h6>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">@student.StudentId | @student.BoarderNo</small>
+                                        </div>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-telephone text-primary"></i>
+                                            <a href="tel:@student.Mobile">@student.Mobile</a>
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(student.Email))
+                                        {
+                                            <p class="card-text mb-2">
+                                                <i class="bi bi-envelope text-primary"></i>
+                                                <a href="mailto:@student.Email">@student.Email</a>
+                                            </p>
+                                        }
+                                        <div class="border-top pt-2">
+                                            <small>
+                                                <strong>@student.Faculty</strong> - Sem @student.Semester
+                                                @if (!string.IsNullOrEmpty(student.BloodGroup))
+                                                {
+                                                    <br />
+                                                    <span>Blood: <span class="badge bg-secondary">@student.BloodGroup</span></span>
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info m-4">
+                    <i class="bi bi-info-circle"></i> No students are currently assigned to this room.
+                </div>
+            }
+        </div>
+    </div>
+</div>

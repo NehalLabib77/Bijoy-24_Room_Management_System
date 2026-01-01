@@ -1,0 +1,116 @@
+@model ResidentialHallManagement.Core.Entities.BoarderRegistry
+
+@{
+    ViewData["Title"] = "Edit Boarder Entry";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2><i class="bi bi-pencil-square"></i> Edit Boarder Registry Entry</h2>
+            <p class="text-muted">Update boarder number and student assignment</p>
+            <hr />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle"></i> <strong>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            @foreach (var error in modelState.Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" asp-action="EditBoarderEntry">
+                        <div class="mb-3">
+                            <label asp-for="BoarderNo" class="form-label">Boarder Number <span
+                                    class="text-danger">*</span></label>
+                            <input asp-for="BoarderNo" class="form-control" readonly />
+                            <small class="form-text text-muted">Cannot be changed</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Pre-assigned Student Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Optional - Student's full name" />
+                            <small class="form-text text-muted">Leave empty if not yet assigned</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StudentId" class="form-label">Student ID</label>
+                            <input asp-for="StudentId" class="form-control" placeholder="e.g., STU001" />
+                            <span asp-validation-for="StudentId" class="text-danger small"></span>
+                            <small class="form-text text-muted">Leave empty if this boarder number is available for any
+                                student. If provided, only this student can register with this boarder number.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="faculty" class="form-label">Faculty</label>
+                            <select id="faculty" name="faculty" class="form-select">
+                                <option value="">-- Select Faculty --</option>
+                                <option value="LLA">LLA (Law, Liberal Arts)</option>
+                                <option value="BBA">BBA (Bachelor of Business Administration)</option>
+                                <option value="CSE">CSE (Computer Science & Engineering)</option>
+                                <option value="NFS">NFS (Nutrition & Food Science)</option>
+                                <option value="ESDM">ESDM (Environmental Science & Development)</option>
+                                <option value="Agriculture">Agriculture</option>
+                                <option value="Fisheries">Fisheries</option>
+                            </select>
+                            <small class="form-text text-muted">Optional - Student's faculty/program</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="semester" class="form-label">Semester</label>
+                            <select id="semester" name="semester" class="form-select">
+                                <option value="">-- Select Semester --</option>
+                                <option value="1">1st Semester</option>
+                                <option value="2">2nd Semester</option>
+                                <option value="3">3rd Semester</option>
+                                <option value="4">4th Semester</option>
+                                <option value="5">5th Semester</option>
+                                <option value="6">6th Semester</option>
+                                <option value="7">7th Semester</option>
+                                <option value="8">8th Semester</option>
+                            </select>
+                            <small class="form-text text-muted">Optional - Student's current semester</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <input asp-for="Status" class="form-control" readonly />
+                            <small class="form-text text-muted">Automatically set based on student assignment</small>
+                        </div>
+
+                        <div class="form-text mb-3 p-3 bg-light border">
+                            <strong><i class="bi bi-info-circle"></i> Note:</strong> Status is automatically set to
+                            "Assigned" when a Student ID is provided, and "Available" otherwise.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Update Entry
+                            </button>
+                            <a asp-action="ManageBoarderRegistry" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

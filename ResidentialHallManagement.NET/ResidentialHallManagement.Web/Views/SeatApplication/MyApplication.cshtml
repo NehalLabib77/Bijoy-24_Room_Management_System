@@ -1,0 +1,203 @@
+@model List<ResidentialHallManagement.Core.Entities.SeatApplication>
+@{
+    ViewData["Title"] = "My Applications";
+}
+
+<link rel="stylesheet" href="~/css/seat-application.css" asp-append-version="true" />
+
+<div class="my-applications-container">
+    <!-- Header Section -->
+    <section class="page-header-section">
+        <div class="container">
+            <div class="page-header-content">
+                <a asp-controller="StudentDashboard" asp-action="Index" class="back-link">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                <h1 class="page-title">
+                    <i class="bi bi-file-earmark-text"></i> My Room Applications
+                </h1>
+                <p class="page-subtitle">Track the status of your room/seat applications</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-4">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="applications-list">
+                @foreach (var app in Model)
+                {
+                    var statusColor = app.Status switch
+                    {
+                        "Approved" => "success",
+                        "Pending" => "warning",
+                        "Rejected" => "danger",
+                        "Cancelled" => "secondary",
+                        "Expired" => "dark",
+                        _ => "info"
+                            };
+                    var statusIcon = app.Status switch
+                    {
+                        "Approved" => "check-circle-fill",
+                        "Pending" => "hourglass-split",
+                        "Rejected" => "x-circle-fill",
+                        "Cancelled" => "slash-circle",
+                        "Expired" => "clock-history",
+                        _ => "question-circle"
+                            };
+
+                    <div class="application-card">
+                        <div class="application-status-bar status-@statusColor"></div>
+                        <div class="application-content">
+                            <div class="application-header">
+                                <div class="application-id">
+                                    <span class="label">Application #</span>
+                                    <span class="value">@app.ApplicationId</span>
+                                </div>
+                                <span class="status-badge status-@statusColor">
+                                    <i class="bi bi-@statusIcon"></i>
+                                    @app.Status
+                                </span>
+                            </div>
+
+                            <div class="application-details">
+                                <div class="detail-group">
+                                    <div class="detail-icon">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="label">Hall</span>
+                                        <span class="value">@app.Seat?.Room?.Hall?.HallName</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-group">
+                                    <div class="detail-icon">
+                                        <i class="bi bi-door-closed"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="label">Room</span>
+                                        <span class="value">Room @app.Seat?.Room?.RoomNumber</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-group">
+                                    <div class="detail-icon">
+                                        <i class="bi bi-person-workspace"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="label">Seat</span>
+                                        <span class="value">@app.Seat?.SeatLabel</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-group">
+                                    <div class="detail-icon">
+                                        <i class="bi bi-@(app.Seat?.SeatType == "Window" ? "sun" : "door-open")"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="label">Seat Type</span>
+                                        <span class="value">@app.Seat?.SeatType Side</span>
+                                    </div>
+                                </div>
+
+                                <div class="detail-group">
+                                    <div class="detail-icon">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div class="detail-info">
+                                        <span class="label">Applied On</span>
+                                        <span class="value">@app.ApplicationDate.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                    </div>
+                                </div>
+
+                                @if (app.ProcessedDate != null)
+                                {
+                                    <div class="detail-group">
+                                        <div class="detail-icon">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div class="detail-info">
+                                            <span class="label">Processed On</span>
+                                            <span class="value">@app.ProcessedDate?.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(app.StudentRemarks))
+                            {
+                                <div class="remarks-section">
+                                    <span class="remarks-label">
+                                        <i class="bi bi-chat-left-text"></i> Your Remarks
+                                    </span>
+                                    <p class="remarks-text">@app.StudentRemarks</p>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(app.AdminRemarks))
+                            {
+                                <div class="remarks-section admin-remarks">
+                                    <span class="remarks-label">
+                                        <i class="bi bi-person-badge"></i> Admin Response
+                                    </span>
+                                    <p class="remarks-text">@app.AdminRemarks</p>
+                                </div>
+                            }
+
+                            @if (app.Status == "Pending")
+                            {
+                                <div class="application-actions">
+                                    <form asp-action="CancelApplication" method="post"
+                                        onsubmit="return confirm('Are you sure you want to cancel this application?');">
+                                        <input type="hidden" name="applicationId" value="@app.ApplicationId" />
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="bi bi-x-lg"></i> Cancel Application
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+
+                            @if (app.Status == "Approved")
+                            {
+                                <div class="approved-info">
+                                    <i class="bi bi-info-circle"></i>
+                                    <p>Your seat has been confirmed! Please visit the hall office to complete the check-in process.
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state-card">
+                <div class="empty-icon">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3>No Applications Yet</h3>
+                <p>You haven't applied for any room/seat yet. Start by browsing available rooms.</p>
+                <a asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-search"></i> Browse Available Rooms
+                </a>
+            </div>
+        }
+    </div>
+</div>

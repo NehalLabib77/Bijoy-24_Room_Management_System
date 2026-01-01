@@ -1,0 +1,196 @@
+@model ResidentialHallManagement.Core.Entities.Room
+
+@{
+    ViewData["Title"] = "Room Details";
+    var roomMembers = ViewBag.RoomMembers as List<ResidentialHallManagement.Core.Entities.Student> ?? new
+    List<ResidentialHallManagement.Core.Entities.Student>();
+    var roomAssignments = ViewBag.RoomAssignments as List<ResidentialHallManagement.Core.Entities.RoomAssignment> ?? new
+    List<ResidentialHallManagement.Core.Entities.RoomAssignment>();
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-door-closed"></i> Room Details</h2>
+            <p class="text-muted">@Model.Hall?.HallName - Room @(Model.RoomNumber ?? Model.RoomId)</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="EditRooms" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Rooms
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Room Information Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header text-white"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Room Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th width="40%" class="text-muted">Room ID:</th>
+                            <td><strong>@Model.RoomId</strong></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Room Number:</th>
+                            <td>@(Model.RoomNumber ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Room Name:</th>
+                            <td>@(Model.RoomName ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Block:</th>
+                            <td><span class="badge bg-secondary">@(Model.Block ?? "N/A")</span></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Wing:</th>
+                            <td>@(Model.Wing ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Floor:</th>
+                            <td>@(Model.Floor?.ToString() ?? "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Hall:</th>
+                            <td><strong>@Model.Hall?.HallName</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Capacity Information Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header text-white"
+                    style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Capacity & Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Total Capacity</h6>
+                            <h3 class="text-primary">@Model.RoomCapacity</h3>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Available Slots</h6>
+                            <h3 class="@(Model.AvailableSlots > 0 ? "text-success" : "text-danger")">
+                                @Model.AvailableSlots</h3>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <h6 class="text-muted">Room Status</h6>
+                        @if (Model.Status == "Occupied")
+                        {
+                            <span class="badge bg-danger fs-6">Occupied (Full)</span>
+                        }
+                        else if (Model.Status == "Maintenance")
+                        {
+                            <span class="badge bg-warning text-dark fs-6">Under Maintenance</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success fs-6">Available</span>
+                        }
+                    </div>
+                    <div class="progress mt-3">
+                        @{
+                            var occupancyPercent = Model.RoomCapacity > 0 ? (100 - (Model.AvailableSlots * 100 /
+                            Model.RoomCapacity)) : 0;
+                        }
+                        <div class="progress-bar @(Model.AvailableSlots > 0 ? "bg-success" : "bg-danger")"
+                            role="progressbar" style="width: @occupancyPercent%">
+                            @occupancyPercent% Occupied
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Members Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-people-fill"></i> Room Members (@roomMembers.Count /
+                    @Model.RoomCapacity)</h5>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (roomMembers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Faculty</th>
+                                <th>Semester</th>
+                                <th>Mobile</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in roomMembers)
+                            {
+                                var assignment = roomAssignments.FirstOrDefault(ra => ra.StudentId == student.StudentId);
+                                <tr>
+                                    <td><strong>@student.StudentId</strong></td>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.Faculty</td>
+                                    <td>@student.Semester</td>
+                                    <td>@student.Mobile</td>
+                                    <td><span class="badge bg-success">@student.Status</span></td>
+                                    <td>
+                                        @if (assignment != null)
+                                        {
+                                            <form method="post" asp-action="DeleteRoomAssignment" asp-controller="HallAdmin"
+                                                onsubmit="return confirm('Are you sure you want to remove @student.StudentName from this room?');">
+                                                <input type="hidden" name="assignmentId" value="@assignment.AssignmentId" />
+                                                <input type="hidden" name="roomId" value="@Model.RoomId" />
+                                                <input type="hidden" name="hallId" value="@Model.HallId" />
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle"></i> No students currently assigned to this room.
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@model IEnumerable<ResidentialHallManagement.Core.Entities.HallAdmin>
+@{
+    ViewData["Title"] = "Manage Hall Admins";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Manage Hall Admins</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active">Hall Admins</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-people me-1"></i>
+                Hall Administrators
+            </div>
+            <a asp-action="CreateHallAdmin" class="btn btn-success btn-sm">
+                <i class="bi bi-plus-circle"></i> Create New Hall Admin
+            </a>
+        </div>
+        <div class="card-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    @if (TempData["RegistrationToken"] != null)
+                    {
+                        <div class="mt-2">
+                            <strong>Share this token with the Hall Admin to complete registration:</strong>
+                            <div class="input-group mt-1">
+                                <input type="text" class="form-control" value="@TempData["RegistrationToken"]" id="newToken"
+                                    readonly>
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToken('@TempData["RegistrationToken"]')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Hall</th>
+                            <th>Role</th>
+                            <th>Registration Token</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var admin in Model)
+                        {
+                            <tr>
+                                <td>@admin.HallAdminId</td>
+                                <td>@admin.AdminName</td>
+                                <td>@admin.Hall?.HallName</td>
+                                <td>@admin.AdminRole</td>
+                                <td>
+                                    @if (!admin.IsRegistered && !string.IsNullOrEmpty(admin.RegistrationToken))
+                                    {
+                                        <code class="text-primary fw-bold">@admin.RegistrationToken</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1"
+                                            onclick="copyToken('@admin.RegistrationToken')" title="Copy Token">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    }
+                                    else if (admin.IsRegistered)
+                                    {
+                                        <span class="badge bg-success">Registered</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge bg-@(admin.Status == "Active" ? "success" : admin.Status == "Pending" ? "warning" : "secondary")">@admin.Status</span>
+                                </td>
+                                <td>
+                                    <a asp-action="EditHallAdmin" asp-route-id="@admin.HallAdminId"
+                                        class="btn btn-sm btn-primary">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

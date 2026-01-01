@@ -1,0 +1,88 @@
+@model ResidentialHallManagement.Web.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Hall Admin Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-warning text-dark"
+                    style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%) !important;">
+                    <div class="text-center py-3">
+                        <h2 class="mb-1"><i class="bi bi-shield-check"></i> Hall Admin Registration</h2>
+                        <p class="mb-0">Complete your Hall Admin registration</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle"></i> <strong>Important:</strong> You must have a valid registration
+                        token provided by the System Administrator to register as a Hall Admin.
+                    </div>
+
+                    <form asp-action="RegisterHallAdmin" asp-controller="Account" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label for="RegistrationToken" class="form-label fw-bold">
+                                Registration Token <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="RegistrationToken" class="form-control"
+                                placeholder="Enter your registration token" required
+                                style="font-family: monospace; font-size: 1.1em;" />
+                            <span asp-validation-for="RegistrationToken" class="text-danger"></span>
+                            <small class="text-muted">12-character code provided by System Admin</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">
+                                Email <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com"
+                                required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-bold">
+                                Password <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control"
+                                placeholder="Create a strong password" required />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <small class="text-muted">Min 6 characters</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold">
+                                Confirm Password <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                placeholder="Confirm your password" required />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark">
+                                <i class="bi bi-check-circle"></i> Complete Registration
+                            </button>
+                            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Login
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Create Hall Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-person-plus-fill"></i> Create New Hall Admin</h2>
+        <a asp-action="ManageHallAdmins" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+            @if (TempData["RegistrationToken"] != null)
+            {
+                <br />
+                <strong>Registration Token:</strong>
+
+                <code class="bg-dark text-warning px-2 py-1">@TempData["RegistrationToken"]</code>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="CreateHallAdmin" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold"><i class="bi bi-person"></i> Full Name *</label>
+                    <input name="adminName" class="form-control" placeholder="Enter full name" required />
+                    <small class="text-muted">Enter the full name of the Hall Admin</small>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold"><i class="bi bi-building"></i> Assign Hall *</label>
+                    <select name="hallId" class="form-select" required>
+                        <option value="">-- Select Hall --</option>
+                        @foreach (var hall in ViewBag.Halls)
+                        {
+                            <option value="@hall.HallId">@hall.HallName</option>
+                        }
+                    </select>
+                    <small class="text-muted">Select which hall this admin will manage</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> A unique registration token will be generated. The Hall Admin will
+                    use this token to complete registration and set their own username and password.
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Create Hall Admin Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

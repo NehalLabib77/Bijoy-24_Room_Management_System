@@ -1,0 +1,58 @@
+@model IEnumerable<ResidentialHallManagement.Core.Entities.Room>
+@{
+    ViewData["Title"] = "Manage Rooms";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Manage Rooms</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active">Rooms</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-house me-1"></i>
+            Room Management
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Room ID</th>
+                            <th>Hall</th>
+                            <th>Room Number</th>
+                            <th>Block</th>
+                            <th>Floor</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var room in Model)
+                        {
+                            <tr>
+                                <td>@room.RoomId</td>
+                                <td>@room.Hall?.HallName</td>
+                                <td>@room.RoomNumber</td>
+                                <td>@room.Block</td>
+                                <td>@room.Floor</td>
+                                <td>@room.RoomCapacity</td>
+                                <td>
+                                    <span
+                                        class="badge bg-@(room.Status == "Available" ? "success" : room.Status == "Occupied" ? "warning" : "secondary")">@room.Status</span>
+                                </td>
+                                <td>
+                                    <a asp-action="EditRoom" asp-route-roomId="@room.RoomId" asp-route-hallId="@room.HallId"
+                                        class="btn btn-sm btn-primary">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

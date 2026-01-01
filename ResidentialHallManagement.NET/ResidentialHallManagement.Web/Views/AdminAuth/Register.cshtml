@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Admin Registration";
+    Layout = "~/Views/Shared/_LayoutBlank.cshtml";
+}
+
+<div class="container-fluid vh-100 d-flex align-items-center"
+    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-danger text-white">
+                        <div class="text-center py-4">
+                            <h2 class="mb-1"><i class="bi bi-person-plus-fill"></i> Admin Registration</h2>
+                            <p class="mb-0 small">Create a new admin account</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-5">
+                        <h5 class="mb-4 text-center text-danger fw-bold">Create Admin Account</h5>
+
+                        <form method="post" asp-action="Register" asp-controller="AdminAuth">
+                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-person-fill"></i> Username
+                                </label>
+                                <input type="text" name="username" class="form-control form-control-lg"
+                                    placeholder="Enter username" required autofocus />
+                                <small class="text-muted">Must be unique and between 3-20 characters</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-key-fill"></i> Password
+                                </label>
+                                <input type="password" name="password" class="form-control form-control-lg"
+                                    placeholder="Enter password" required />
+                                <small class="text-muted">Must be at least 6 characters long</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-key-fill"></i> Confirm Password
+                                </label>
+                                <input type="password" name="confirmPassword" class="form-control form-control-lg"
+                                    placeholder="Confirm password" required />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-shield-check"></i> Role
+                                </label>
+                                <select name="role" class="form-control form-control-lg" required>
+                                    <option value="">-- Select Role --</option>
+                                    <option value="SystemAdmin">System Admin</option>
+                                    <option value="HallAdmin">Hall Admin</option>
+                                </select>
+                                <small class="text-muted">Select the appropriate role for this admin account</small>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-danger btn-lg fw-bold">
+                                    <i class="bi bi-person-plus"></i> Create Account
+                                </button>
+                            </div>
+
+                            <hr class="my-4" />
+
+                            <p class="text-center mb-0">
+                                Already have an account?
+                                <a href="@Url.Action("Login", "AdminAuth")"
+                                    class="text-danger fw-bold text-decoration-none">
+                                    Login here
+                                </a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4"
+                    style="background-color: rgba(255,255,255,0.2); border: 1px solid white; color: white;">
+                    <i class="bi bi-info-circle"></i> <strong>Note:</strong><br>
+                    Admin accounts are for system administrators and hall administrators only.<br>
+                    Please ensure you have proper authorization before creating an account.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

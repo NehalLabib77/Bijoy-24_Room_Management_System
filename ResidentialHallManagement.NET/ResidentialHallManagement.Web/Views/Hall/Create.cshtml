@@ -1,0 +1,54 @@
+@model ResidentialHallManagement.Core.Entities.Hall
+
+@{
+    ViewData["Title"] = "Create Hall";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Create New Hall</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label asp-for="HallName" class="form-label">Hall Name</label>
+                            <input asp-for="HallName" class="form-control" placeholder="e.g., Sher-e-Bangla Hall" />
+                            <span asp-validation-for="HallName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="HallType" class="form-label">Hall Type</label>
+                            <select asp-for="HallType" class="form-select">
+                                <option value="">Select Type</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                            </select>
+                            <span asp-validation-for="HallType" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="HallCapacity" class="form-label">Capacity</label>
+                            <input asp-for="HallCapacity" class="form-control" type="number" min="1"
+                                placeholder="e.g., 500" />
+                            <span asp-validation-for="HallCapacity" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Hall</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

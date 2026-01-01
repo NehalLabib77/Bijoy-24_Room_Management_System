@@ -1,0 +1,26 @@
+@model ResidentialHallManagement.Core.Entities.BoarderRegistry
+
+@{
+    ViewData["Title"] = "Boarder Details";
+}
+
+<div class="container">
+    <h3>Boarder Details</h3>
+    <dl class="row">
+        <dt class="col-sm-3">Boarder No</dt>
+        <dd class="col-sm-9">@Model.BoarderNo</dd>
+
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+
+        <dt class="col-sm-3">Assigned Student</dt>
+        <dd class="col-sm-9">@Model.StudentId</dd>
+    </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.BoarderNo" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>

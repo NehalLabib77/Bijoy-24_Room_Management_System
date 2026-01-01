@@ -1,0 +1,150 @@
+@model ResidentialHallManagement.Core.Entities.Student
+
+@{
+    ViewData["Title"] = "Create Student";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Create New Student</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StudentId" class="form-label">Student ID</label>
+                                <input asp-for="StudentId" class="form-control" placeholder="e.g., S201201030" />
+                                <span asp-validation-for="StudentId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StudentName" class="form-label">Student Name</label>
+                                <input asp-for="StudentName" class="form-control" />
+                                <span asp-validation-for="StudentName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FatherName" class="form-label">Father's Name</label>
+                                <input asp-for="FatherName" class="form-control" />
+                                <span asp-validation-for="FatherName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MotherName" class="form-label">Mother's Name</label>
+                                <input asp-for="MotherName" class="form-control" />
+                                <span asp-validation-for="MotherName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Gender" class="form-label">Gender</label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">Select Gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Religion" class="form-label">Religion</label>
+                                <input asp-for="Religion" class="form-control" />
+                                <span asp-validation-for="Religion" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="BloodGroup" class="form-label">Blood Group</label>
+                                <select asp-for="BloodGroup" class="form-select">
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                                <span asp-validation-for="BloodGroup" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Mobile" class="form-label">Mobile</label>
+                                <input asp-for="Mobile" class="form-control" placeholder="e.g., 01712345678" />
+                                <span asp-validation-for="Mobile" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label">Status</label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="">Select Status</option>
+                                    <option value="RUNNING">Running</option>
+                                    <option value="ALUMNI">Alumni</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BoarderNo" class="form-label">Boarder No</label>
+                                <input asp-for="BoarderNo" class="form-control" placeholder="Enter Boarder No" />
+                                <span asp-validation-for="BoarderNo" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Faculty" class="form-label">Faculty</label>
+                                <select asp-for="Faculty" class="form-select">
+                                    <option value="">Select Faculty</option>
+                                    <option value="LLA">LLA (Law, Liberal Arts)</option>
+                                    <option value="BBA">BBA (Bachelor of Business Administration)</option>
+                                    <option value="CSE">CSE (Computer Science & Engineering)</option>
+                                    <option value="NFS">NFS (Nutrition & Food Science)</option>
+                                    <option value="ESDM">ESDM (Environmental Science & Development)</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="Fisheries">Fisheries</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Semester" class="form-label">Semester</label>
+                                <select asp-for="Semester" class="form-select">
+                                    <option value="0">Select Semester</option>
+                                    <option value="1">1st Semester</option>
+                                    <option value="2">2nd Semester</option>
+                                    <option value="3">3rd Semester</option>
+                                    <option value="4">4th Semester</option>
+                                    <option value="5">5th Semester</option>
+                                    <option value="6">6th Semester</option>
+                                    <option value="7">7th Semester</option>
+                                    <option value="8">8th Semester</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PermanentAddress" class="form-label">Permanent Address</label>
+                            <textarea asp-for="PermanentAddress" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="PermanentAddress" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Student</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,511 @@
+@{
+    ViewData["Title"] = "Hall Admin Dashboard";
+    var hall = ViewBag.Hall as ResidentialHallManagement.Core.Entities.Hall;
+    var hallAdmin = ViewBag.HallAdmin as ResidentialHallManagement.Core.Entities.HallAdmin;
+    var pendingApplications = ViewBag.PendingApplications as
+    List<ResidentialHallManagement.Core.Entities.RoomApplicationRequest> ?? new
+    List<ResidentialHallManagement.Core.Entities.RoomApplicationRequest>();
+    var roomAssignments = ViewBag.RoomAssignments as List<ResidentialHallManagement.Core.Entities.RoomAssignment> ?? new
+    List<ResidentialHallManagement.Core.Entities.RoomAssignment>();
+}
+
+<style>
+    .hall-admin-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.students::before {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .stat-card.pending::before {
+        background: linear-gradient(90deg, #ffc107, #ff9800);
+    }
+
+    .stat-card.rooms::before {
+        background: linear-gradient(90deg, #17a2b8, #20c997);
+    }
+
+    .stat-card.capacity::before {
+        background: linear-gradient(90deg, #6c757d, #495057);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .stat-icon.students {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .stat-icon.pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .stat-icon.rooms {
+        background: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+
+    .stat-icon.capacity {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    .stat-label {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s ease;
+        height: 100%;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .action-card-header {
+        padding: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .action-card-header.edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .action-card-header.add {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .action-card-header.assign {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    }
+
+    .action-card-header.approve {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    }
+
+    .action-card-body {
+        padding: 20px;
+    }
+
+    .action-btn {
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .data-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .data-card-header {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        color: white;
+        padding: 20px;
+    }
+
+    .table-modern {
+        margin: 0;
+    }
+
+    .table-modern th {
+        background: #f8f9fa;
+        color: #4a5568;
+        font-weight: 600;
+        border: none;
+        padding: 15px;
+    }
+
+    .table-modern td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .table-modern tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-modern tr:hover td {
+        background: #f8f9fa;
+    }
+
+    .badge-modern {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .pending-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    .side-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .side-indicator.window {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .side-indicator.door {
+        background: #fff3e0;
+        color: #e65100;
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="hall-admin-hero">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2"><i class="bi bi-speedometer2 me-2"></i>Hall Administrator Dashboard</h2>
+                <p class="mb-0 opacity-75">Manage hall operations and student room assignments</p>
+                <div class="mt-3 d-flex gap-3">
+                    <span class="badge bg-white text-dark px-3 py-2" style="font-size: 0.95rem;">
+                        <i class="bi bi-building me-1"></i> @hall?.HallName
+                    </span>
+                    <span class="badge bg-white bg-opacity-25 px-3 py-2" style="font-size: 0.95rem;">
+                        <i class="bi bi-person me-1"></i> @hallAdmin?.AdminName
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card students">
+                <div class="stat-icon students"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-value">@roomAssignments.Count(ra => ra.Status == "Active")</div>
+                <div class="stat-label">Total Students Assigned</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card pending">
+                <div class="stat-icon pending"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-value @(pendingApplications.Any() ? "pending-pulse text-warning" : "")">
+                    @pendingApplications.Count</div>
+                <div class="stat-label">Pending Applications</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card rooms">
+                <div class="stat-icon rooms"><i class="bi bi-door-closed"></i></div>
+                <div class="stat-value">@roomAssignments.Select(ra => ra.RoomIdentity).Distinct().Count()</div>
+                <div class="stat-label">Active Rooms</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card capacity">
+                <div class="stat-icon capacity"><i class="bi bi-building"></i></div>
+                <div class="stat-value">@hall?.HallCapacity</div>
+                <div class="stat-label">Hall Capacity</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Cards -->
+    <h4 class="mb-3"><i class="bi bi-lightning-charge text-warning"></i> Quick Actions</h4>
+    <div class="row mb-4">
+        <div class="col-lg-3 mb-4">
+            <div class="action-card">
+                <div class="action-card-header edit">
+                    <i class="bi bi-pencil-square" style="font-size: 24px;"></i>
+                    <h5 class="mb-0">Edit Rooms</h5>
+                </div>
+                <div class="action-card-body">
+                    <p class="text-muted mb-3">Update room details, capacity, and status</p>
+                    <a href="@Url.Action("EditRooms", "HallAdmin")" class="btn btn-primary action-btn w-100">
+                        <i class="bi bi-pencil"></i> Manage Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 mb-4">
+            <div class="action-card">
+                <div class="action-card-header add">
+                    <i class="bi bi-plus-circle" style="font-size: 24px;"></i>
+                    <h5 class="mb-0">Add Room</h5>
+                </div>
+                <div class="action-card-body">
+                    <p class="text-muted mb-3">Create new rooms for this hall</p>
+                    <a href="@Url.Action("CreateRoom", "HallAdmin")" class="btn btn-success action-btn w-100">
+                        <i class="bi bi-plus"></i> Add New Room
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 mb-4">
+            <div class="action-card">
+                <div class="action-card-header assign">
+                    <i class="bi bi-person-plus" style="font-size: 24px;"></i>
+                    <h5 class="mb-0">Assign Student</h5>
+                </div>
+                <div class="action-card-body">
+                    <p class="text-muted mb-3">Manage student room assignments</p>
+                    <a href="@Url.Action("AssignStudent", "HallAdmin")" class="btn btn-warning action-btn w-100 mb-2">
+                        <i class="bi bi-plus-circle"></i> Assign Room
+                    </a>
+                    <a href="@Url.Action("EditRooms", "HallAdmin")" class="btn btn-outline-danger action-btn w-100">
+                        <i class="bi bi-x-circle"></i> Remove Student
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 mb-4">
+            <div class="action-card">
+                <div class="action-card-header approve">
+                    <i class="bi bi-check-circle" style="font-size: 24px;"></i>
+                    <h5 class="mb-0">Applications</h5>
+                </div>
+                <div class="action-card-body">
+                    @if (pendingApplications.Any())
+                    {
+                        <div class="alert alert-warning mb-3" style="border-radius: 10px;">
+                            <strong>@pendingApplications.Count</strong> pending application(s)
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-success mb-3"><i class="bi bi-check-lg"></i> All applications processed</p>
+                    }
+                    <a href="@Url.Action("RoomApplications", "HallAdmin")" class="btn btn-info action-btn w-100">
+                        <i class="bi bi-list-check"></i> Review Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables -->
+    <div class="row">
+        <!-- Recent Assignments -->
+        <div class="col-lg-7 mb-4">
+            <div class="data-card">
+                <div class="data-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list me-2"></i>Recent Room Assignments</h5>
+                    <a href="@Url.Action("ManageRooms", "HallAdmin")" class="btn btn-sm btn-light">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (roomAssignments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Room</th>
+                                        <th>Bed</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var assignment in roomAssignments.OrderByDescending(ra =>
+                                                                    ra.AssignmentDate).Take(8))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@assignment.StudentId</strong><br>
+                                                <small class="text-muted">@assignment.Student?.StudentName</small>
+                                            </td>
+                                            <td><span
+                                                    class="badge-modern bg-secondary text-white">@assignment.RoomIdentity</span>
+                                            </td>
+                                            <td>@(assignment.BedNumber ?? "N/A")</td>
+                                            <td>
+                                                @if (assignment.Status == "Active")
+                                                {
+                                                    <span class="badge-modern bg-success text-white">Active</span>
+                                                }
+                                                else if (assignment.Status == "CheckedOut")
+                                                {
+                                                    <span class="badge-modern bg-warning text-dark">Checked Out</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-modern bg-danger text-white">Cancelled</span>
+                                                }
+                                            </td>
+                                            <td><small>@assignment.AssignmentDate.ToString("dd MMM")</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 48px;"></i>
+                            <p class="text-muted mt-3">No active assignments</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Applications -->
+        <div class="col-lg-5 mb-4">
+            <div class="data-card">
+                <div class="data-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Pending Applications</h5>
+                    @if (pendingApplications.Any())
+                    {
+                        <span class="badge bg-warning text-dark pending-pulse">@pendingApplications.Count new</span>
+                    }
+                </div>
+                <div class="card-body p-0">
+                    @if (pendingApplications.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Room</th>
+                                        <th>Side</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var app in pendingApplications.OrderByDescending(a =>
+                                                                    a.ApplicationDate).Take(6))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@app.StudentId</strong><br>
+                                                <small class="text-muted">@app.Student?.StudentName</small>
+                                            </td>
+                                            <td><span class="badge-modern bg-info text-white">@app.RequestedRoomIdentity</span>
+                                            </td>
+                                            <td>
+                                                @if (app.PreferredSide == "Window")
+                                                {
+                                                    <span class="side-indicator window"><i class="bi bi-sun"></i> Window</span>
+                                                }
+                                                else if (app.PreferredSide == "Door")
+                                                {
+                                                    <span class="side-indicator door"><i class="bi bi-door-open"></i> Door</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-3 bg-light">
+                            <a href="@Url.Action("RoomApplications", "HallAdmin")" class="btn btn-info action-btn w-100">
+                                <i class="bi bi-arrow-right me-2"></i>Review All Applications
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-check-circle text-success" style="font-size: 48px;"></i>
+                            <p class="text-success mt-3 mb-0">All applications processed</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

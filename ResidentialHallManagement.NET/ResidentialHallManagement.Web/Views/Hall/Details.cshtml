@@ -1,0 +1,42 @@
+@model ResidentialHallManagement.Core.Entities.Hall
+
+@{
+    ViewData["Title"] = "Hall Details";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Hall Details</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Hall ID</dt>
+                        <dd class="col-sm-8">@Model.HallId</dd>
+
+                        <dt class="col-sm-4">Hall Name</dt>
+                        <dd class="col-sm-8">@Model.HallName</dd>
+
+                        <dt class="col-sm-4">Type</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.HallType == "MALE" ? "bg-primary" : "bg-danger")">
+                                @Model.HallType
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Capacity</dt>
+                        <dd class="col-sm-8">@Model.HallCapacity</dd>
+                    </dl>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                        <a asp-action="Edit" asp-route-id="@Model.HallId" class="btn btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@Model.HallId" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

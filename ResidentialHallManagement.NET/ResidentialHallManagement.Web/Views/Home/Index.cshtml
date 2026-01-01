@@ -1,0 +1,535 @@
+@{
+    ViewData["Title"] = "Home - BIJOY-24 Residential Hall Management";
+    var homeImages = ViewBag.HomeImages as List<string> ?? new List<string>();
+}
+
+<!-- Hero Section with Professional University Style -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-pattern"></div>
+        <div class="hero-gradient"></div>
+    </div>
+    <div class="hero-content">
+        <h1 class="hero-title">BIJOY-24</h1>
+        <h2 class="hero-subtitle-main">Residential Hall Management System</h2>
+        <p class="hero-subtitle">Streamline your accommodation experience with our modern, efficient, and
+            student-friendly housing management platform</p>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="hero-buttons">
+                <a asp-controller="Home" asp-action="UserDashboard" class="btn btn-hero-primary">
+                    <i class="bi bi-speedometer2"></i> Go to Dashboard
+                </a>
+                @if (User.IsInRole("Student"))
+                {
+                    <a asp-controller="SeatApplication" asp-action="Index" class="btn btn-hero-secondary">
+                        <i class="bi bi-door-open"></i> Apply for Room
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="hero-buttons">
+                <a asp-controller="Account" asp-action="UnifiedAuth" class="btn btn-hero-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Login / Register
+                </a>
+                <a href="#features" class="btn btn-hero-outline">
+                    <i class="bi bi-info-circle"></i> Learn More
+                </a>
+            </div>
+        }
+
+        <!-- Stats Highlights -->
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stat-value">@(ViewBag.TotalHalls ?? 0)</div>
+                <div class="stat-label">Residential Halls</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-door-closed"></i>
+                </div>
+                <div class="stat-value">@(ViewBag.TotalRooms ?? 0)</div>
+                <div class="stat-label">Total Rooms</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-value">@(ViewBag.TotalStudents ?? 0)</div>
+                <div class="stat-label">Students Housed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <i class="bi bi-chevron-down"></i>
+    </div>
+</section>
+
+<!-- Image Gallery Section - Dynamic from /assets/home/ folder -->
+@if (homeImages.Any())
+{
+    <section class="gallery-section" id="gallery">
+        <div class="container">
+            <div class="text-center mb-4">
+                <span class="section-badge">Gallery</span>
+                <h2 class="section-heading">Our Residential Halls</h2>
+                <p class="section-subheading">Take a look at our modern facilities and comfortable living spaces</p>
+            </div>
+
+            <!-- Image Carousel -->
+            <div id="homeGalleryCarousel" class="carousel slide gallery-carousel" data-bs-ride="carousel"
+                data-bs-interval="5000">
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < homeImages.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#homeGalleryCarousel" data-bs-slide-to="@i"
+                            class="@(i == 0 ? "active" : "")" aria-label="Slide @(i + 1)"></button>
+                    }
+                </div>
+                <div class="carousel-inner">
+                    @for (int i = 0; i < homeImages.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="gallery-image-wrapper">
+                                <img src="@homeImages[i]" class="d-block w-100 gallery-image" alt="Hall Image @(i + 1)">
+                                <div class="gallery-overlay">
+                                    <div class="gallery-overlay-content">
+                                        <i class="bi bi-building"></i>
+                                        <span>Image @(i + 1) of @homeImages.Count</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (homeImages.Count > 1)
+                {
+                    <button class="carousel-control-prev" type="button" data-bs-target="#homeGalleryCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-icon">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#homeGalleryCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-icon">
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                }
+            </div>
+
+            <!-- Thumbnails -->
+            @if (homeImages.Count > 1)
+            {
+                <div class="gallery-thumbnails">
+                    @for (int i = 0; i < homeImages.Count; i++)
+                    {
+                        <div class="gallery-thumbnail @(i == 0 ? "active" : "")" data-bs-target="#homeGalleryCarousel"
+                            data-bs-slide-to="@i">
+                            <img src="@homeImages[i]" alt="Thumbnail @(i + 1)">
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- About Section -->
+<section class="about-section" id="about">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="about-image-container">
+                    <div class="about-image-main">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="about-image-accent">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="about-pattern"></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-content">
+                    <span class="section-badge">About Us</span>
+                    <h2 class="section-heading">Your Home Away From Home</h2>
+                    <p class="section-description">
+                        BIJOY-24 Residential Hall Management System provides a comprehensive platform for managing
+                        student accommodations.
+                        Our modern facilities ensure a comfortable and conducive environment for academic excellence.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span>24/7 Security & Support</span>
+                        </div>
+                        <div class="about-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span>Modern Amenities</span>
+                        </div>
+                        <div class="about-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span>Study-Friendly Environment</span>
+                        </div>
+                        <div class="about-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span>Easy Online Booking</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge">Our Features</span>
+            <h2 class="section-heading">Why Choose Our System?</h2>
+            <p class="section-subheading">Experience the future of hostel management with our feature-rich platform</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #2563eb;">
+                    <i class="bi bi-cursor-fill"></i>
+                </div>
+                <h4>Interactive Seat Selection</h4>
+                <p>Choose your preferred seat with our visual room layout. See real-time availability and book
+                    instantly.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #10b981;">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h4>Secure Booking</h4>
+                <p>Advanced seat locking prevents double booking. Your selection is protected until you complete the
+                    application.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #f59e0b;">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+                <h4>Real-Time Updates</h4>
+                <p>Get instant notifications about your application status. Track your booking from application to
+                    approval.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #8b5cf6;">
+                    <i class="bi bi-phone"></i>
+                </div>
+                <h4>Mobile Responsive</h4>
+                <p>Access the system from any device. Manage your accommodation on-the-go with our responsive design.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #ec4899;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h4>Analytics Dashboard</h4>
+                <p>Administrators can monitor occupancy rates, manage requests, and generate comprehensive reports.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="--feature-color: #14b8a6;">
+                    <i class="bi bi-tools"></i>
+                </div>
+                <h4>Maintenance Requests</h4>
+                <p>Submit and track maintenance requests easily. Keep your living space in perfect condition.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Facilities Section -->
+<section class="facilities-section" id="facilities">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge light">Facilities</span>
+            <h2 class="section-heading light">World-Class Amenities</h2>
+            <p class="section-subheading light">Everything you need for a comfortable stay</p>
+        </div>
+
+        <div class="facilities-grid">
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-wifi"></i>
+                </div>
+                <h5>High-Speed WiFi</h5>
+                <p>Stay connected with unlimited high-speed internet access</p>
+            </div>
+
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-cup-hot"></i>
+                </div>
+                <h5>Common Kitchen</h5>
+                <p>Fully equipped common kitchen with modern appliances</p>
+            </div>
+
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+                <h5>Study Rooms</h5>
+                <p>Quiet study spaces available 24/7 for focused learning</p>
+            </div>
+
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-water"></i>
+                </div>
+                <h5>Laundry Service</h5>
+                <p>On-site laundry facilities for your convenience</p>
+            </div>
+
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h5>24/7 Security</h5>
+                <p>CCTV surveillance and security personnel round the clock</p>
+            </div>
+
+            <div class="facility-card">
+                <div class="facility-icon">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h5>Backup Power</h5>
+                <p>Uninterrupted power supply with backup generators</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section" id="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge">Process</span>
+            <h2 class="section-heading">How to Apply for a Room</h2>
+            <p class="section-subheading">Simple steps to secure your accommodation</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h4>Create Account</h4>
+                <p>Register with your student credentials and verify your email</p>
+            </div>
+
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <h4>Select Hall</h4>
+                <p>Browse available halls and choose based on your preference</p>
+            </div>
+
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <i class="bi bi-cursor-fill"></i>
+                </div>
+                <h4>Choose Seat</h4>
+                <p>View room layout and select your preferred seat position</p>
+            </div>
+
+            <div class="step-connector">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-icon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h4>Get Approved</h4>
+                <p>Submit application and wait for admin approval</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+@if (!User.Identity?.IsAuthenticated ?? true)
+{
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <div class="cta-icon">
+                    <i class="bi bi-house-door-fill"></i>
+                </div>
+                <h2>Ready to Find Your New Home?</h2>
+                <p>Join thousands of students who have already secured their accommodation through our platform.</p>
+                <div class="cta-buttons">
+                    <a asp-controller="Account" asp-action="UnifiedAuth" class="btn btn-cta-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Get Started Now
+                    </a>
+                    <a href="#about" class="btn btn-cta-secondary">
+                        <i class="bi bi-info-circle"></i> Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Contact Section -->
+<section class="contact-section" id="contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5">
+                <span class="section-badge">Contact</span>
+                <h2 class="section-heading">Get In Touch</h2>
+                <p class="section-description">
+                    Have questions about our residential halls? We're here to help you find the perfect accommodation.
+                </p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div>
+                            <strong>Address</strong>
+                            <p>Patuakhali Science and Technology University, Patuakhali, Bangladesh</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <div>
+                            <strong>Email</strong>
+                            <p>housing@@pstu.ac.bd</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <div>
+                            <strong>Phone</strong>
+                            <p>00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="social-links-card">
+                    <h4>Follow Us</h4>
+                    <p>Stay updated with the latest news and announcements</p>
+                    <div class="social-links">
+                        <a href="" target="_blank" class="social-link facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="social-link twitter">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" class="social-link instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link linkedin">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<link rel="stylesheet" href="~/css/home-page.css" asp-append-version="true" />
+
+@section Scripts {
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .facility-card, .step-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Gallery Thumbnail Click Handler
+        document.querySelectorAll('.gallery-thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', function () {
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.gallery-thumbnail').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked thumbnail
+                this.classList.add('active');
+            });
+        });
+
+        // Update active thumbnail when carousel slides
+        const galleryCarousel = document.getElementById('homeGalleryCarousel');
+        if (galleryCarousel) {
+            galleryCarousel.addEventListener('slid.bs.carousel', function (e) {
+                document.querySelectorAll('.gallery-thumbnail').forEach((thumb, index) => {
+                    thumb.classList.toggle('active', index === e.to);
+                });
+            });
+        }
+    </script>
+}

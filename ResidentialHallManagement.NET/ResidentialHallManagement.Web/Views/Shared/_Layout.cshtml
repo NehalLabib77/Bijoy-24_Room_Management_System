@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BIJOY-24 Residential Hall Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modern-theme.css" asp-append-version="true" />
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1a3a52 0%, #2c5aa0 100%);
+            color: white !important;
+            margin-top: 60px;
+            padding: 30px 0;
+            border-top: none;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark mb-0">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-building"></i> BIJOY-24
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house"></i> Home
+                            </a>
+                        </li>
+                        @if (User.IsInRole("Student"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="StudentDashboard" asp-action="Index">
+                                    <i class="bi bi-house-door"></i> My Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="SeatApplication" asp-action="Index">
+                                    <i class="bi bi-door-open"></i> Book Seat
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="SeatApplication" asp-action="MyApplication">
+                                    <i class="bi bi-file-earmark-text"></i> My Booking
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("HallAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="HallAdmin" asp-action="Dashboard">
+                                    <i class="bi bi-speedometer2"></i> Hall Dashboard
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">
+                                    <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle"></i>
+                                    @{
+                                        var displayName = User.Identity.Name;
+                                        if (string.IsNullOrEmpty(displayName))
+                                        {
+                                            displayName = Context.Session.GetString("AdminUsername") ?? "User";
+                                        }
+                                    }
+                                    @displayName
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post"
+                                            class="d-inline w-100">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="UnifiedAuth">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login / Register
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        @await Html.PartialAsync("_StatusMessage")
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center py-4">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 - BIJOY-24 Residential Hall Management System</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">All rights reserved</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

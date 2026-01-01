@@ -1,0 +1,143 @@
+@model List<ResidentialHallManagement.Core.Entities.Room>
+
+@{
+    ViewData["Title"] = "Edit Rooms";
+    var hall = ViewBag.Hall as ResidentialHallManagement.Core.Entities.Hall;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-pencil-square"></i> Edit Rooms</h2>
+            <p class="text-muted">Manage room properties and settings for @hall?.HallName</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Dashboard", "HallAdmin")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- global status messages are displayed by _StatusMessage partial -->
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var room in Model.OrderBy(r => r.Block).ThenBy(r => r.RoomNumber))
+            {
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">@room.RoomNumber/@room.Block</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-borderless">
+                                <tr>
+                                    <th width="50%">Block:</th>
+                                    <td>@room.Block</td>
+                                </tr>
+                                <tr>
+                                    <th>Floor:</th>
+                                    <td>@(room.Floor ?? 0)</td>
+                                </tr>
+                                <tr>
+                                    <th>Capacity:</th>
+                                    <td>@room.RoomCapacity</td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        @if (room.Status == "Available")
+                                        {
+                                            <span class="badge bg-success">Available</span>
+                                        }
+                                        else if (room.Status == "Maintenance")
+                                        {
+                                            <span class="badge bg-warning">Maintenance</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">@room.Status</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="ManageRoom" asp-route-roomId="@room.RoomId" asp-route-hallId="@room.HallId" 
+                               class="btn btn-sm btn-info w-100 mb-2">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                            <button class="btn btn-sm btn-primary w-100" data-bs-toggle="modal"
+                                data-bs-target="#editRoomModal_@room.RoomId.Replace("/", "_")">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Room Modal -->
+                <div class="modal fade" id="editRoomModal_@room.RoomId.Replace("/", "_")" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Edit Room @room.RoomNumber/@room.Block</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form asp-action="UpdateRoom" asp-controller="HallAdmin" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="roomId" value="@room.RoomId" />
+                                    <input type="hidden" name="hallId" value="@room.HallId" />
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Room Capacity</label>
+                                        <input type="number" class="form-control" name="capacity" value="@room.RoomCapacity"
+                                            required />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Room Name</label>
+                                        <input type="text" class="form-control" name="roomName" value="@room.RoomName" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Floor</label>
+                                        <input type="number" class="form-control" name="floor" value="@(room.Floor ?? 0)" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="status" required>
+                                            <option value="Available"
+                                                selected="@(room.Status == "Available" ? "selected" : null)">Available</option>
+                                            <option value="Occupied"
+                                                selected="@(room.Status == "Occupied" ? "selected" : null)">Occupied</option>
+                                            <option value="Maintenance"
+                                                selected="@(room.Status == "Maintenance" ? "selected" : null)">Maintenance
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Wing</label>
+                                        <input type="text" class="form-control" name="wing" value="@room.Wing" />
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No rooms found for this hall.
+        </div>
+    }
+</div>

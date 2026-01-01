@@ -1,0 +1,74 @@
+@model ResidentialHallManagement.Core.Entities.BoarderRegistry
+
+@{
+    ViewData["Title"] = "Create Boarder";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Create Boarder Registry Entry</h4>
+            <p class="mb-0 small">Add a new boarder number with optional student assignment</p>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label asp-for="BoarderNo" class="form-label">Boarder No <span class="text-danger">*</span></label>
+                    <input asp-for="BoarderNo" class="form-control" placeholder="e.g., B001" required />
+                    <span asp-validation-for="BoarderNo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Student Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g., Nehal" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <small class="form-text text-muted">Enter the student's name who will use this boarder
+                        number</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Important:</strong> You can only enter a Student ID here if that student already exists in
+                    the system.
+                    If you're creating this for a student who hasn't registered yet, <strong>leave the Student ID field
+                        empty</strong>
+                    and only fill in the Name field. When the student registers later, they will provide this Boarder
+                    Number.
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StudentId" class="form-label">Student ID (Only if student already exists)</label>
+                    <input asp-for="StudentId" class="form-control" placeholder="Leave empty for new students" />
+                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                    <small class="form-text text-danger">⚠️ Only enter if the student record already exists in the
+                        system</small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Available">Available</option>
+                        <option value="Assigned">Assigned</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Create Boarder Entry
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

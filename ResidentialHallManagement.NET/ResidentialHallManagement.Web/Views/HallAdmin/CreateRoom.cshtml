@@ -1,0 +1,92 @@
+@model ResidentialHallManagement.Core.Entities.Room
+@{
+    ViewData["Title"] = "Create Room";
+    var hall = ViewBag.Hall as ResidentialHallManagement.Core.Entities.Hall;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="bi bi-door-open"></i> Add New Room</h2>
+            <p class="text-muted">Create a new room for @hall?.HallName</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("EditRooms", "HallAdmin")" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Rooms
+            </a>
+        </div>
+    </div>
+
+    <!-- global status messages are displayed by _StatusMessage partial -->
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="CreateRoom" asp-controller="HallAdmin" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="RoomId" class="form-label">Room ID (Code)</label>
+                        <input asp-for="RoomId" class="form-control" maxlength="4" />
+                        <span asp-validation-for="RoomId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="RoomNumber" class="form-label">Room Number</label>
+                        <input asp-for="RoomNumber" class="form-control" />
+                        <span asp-validation-for="RoomNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="RoomName" class="form-label">Room Name (optional)</label>
+                        <input asp-for="RoomName" class="form-control" />
+                        <span asp-validation-for="RoomName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Block" class="form-label">Block</label>
+                        <input asp-for="Block" class="form-control" />
+                        <span asp-validation-for="Block" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Floor" class="form-label">Floor</label>
+                        <input asp-for="Floor" class="form-control" type="number" />
+                        <span asp-validation-for="Floor" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Wing" class="form-label">Wing</label>
+                        <input asp-for="Wing" class="form-control" />
+                        <span asp-validation-for="Wing" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="RoomCapacity" class="form-label">Capacity</label>
+                        <input asp-for="RoomCapacity" class="form-control" type="number" min="1" />
+                        <span asp-validation-for="RoomCapacity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Available">Available</option>
+                            <option value="Occupied">Occupied</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create Room
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,587 @@
+@model List<ResidentialHallManagement.Core.Entities.SeatApplication>
+
+@{
+    ViewData["Title"] = "Seat Applications";
+    var hall = ViewBag.Hall as ResidentialHallManagement.Core.Entities.Hall;
+    var pendingCount = ViewBag.PendingCount ?? 0;
+    var approvedCount = ViewBag.ApprovedCount ?? 0;
+    var rejectedCount = ViewBag.RejectedCount ?? 0;
+    var totalSeats = ViewBag.TotalSeats ?? 0;
+    var bookedSeats = ViewBag.BookedSeats ?? 0;
+}
+
+<style>
+    /* ===== Modern Gradient Header ===== */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 35px 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: rotate 30s linear infinite;
+    }
+
+    @@keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ===== Statistics Cards ===== */
+    .stat-row {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-item i {
+        font-size: 1.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    /* ===== Filter Section ===== */
+    .filter-section {
+        background: white;
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ===== Seat Type Badges ===== */
+    .seat-badge {
+        padding: 8px 14px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .seat-badge.window-left {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        border: 2px solid #42a5f5;
+    }
+
+    .seat-badge.window-right {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #2e7d32;
+        border: 2px solid #66bb6a;
+    }
+
+    .seat-badge.door-left {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        color: #e65100;
+        border: 2px solid #ffa726;
+    }
+
+    .seat-badge.door-right {
+        background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+        color: #c2185b;
+        border: 2px solid #f06292;
+    }
+
+    /* ===== Status Badges ===== */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+        animation: pulse 2s infinite;
+    }
+
+    .status-badge.approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    @@keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    /* ===== Application Cards ===== */
+    .app-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        height: 100%;
+    }
+
+    .app-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-card .card-header {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        padding: 20px;
+        border: none;
+        color: white;
+    }
+
+    .app-card.pending .card-header {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    }
+
+    .app-card.approved .card-header {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    }
+
+    .app-card.rejected .card-header {
+        background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+    }
+
+    /* ===== Info Rows ===== */
+    .info-row {
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ===== Action Buttons ===== */
+    .action-btn {
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ===== Room Diagram Mini ===== */
+    .room-mini {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .room-mini .seat-indicator {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .room-mini .seat-indicator.available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .room-mini .seat-indicator.pending {
+        background: #fff3cd;
+        color: #856404;
+        animation: pulse 2s infinite;
+    }
+
+    .room-mini .seat-indicator.booked {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .room-mini .seat-indicator.selected {
+        background: #007bff;
+        color: white;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+    }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+    }
+
+    .empty-state i {
+        font-size: 100px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== Tab Navigation ===== */
+    .nav-tabs-custom {
+        border: none;
+        margin-bottom: 25px;
+    }
+
+    .nav-tabs-custom .nav-link {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        margin-right: 10px;
+        transition: all 0.3s;
+        background: #f8f9fa;
+        color: #495057;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        background: #e9ecef;
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .tab-badge {
+        background: rgba(255, 255, 255, 0.3);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        margin-left: 5px;
+    }
+
+    .nav-link:not(.active) .tab-badge {
+        background: #dee2e6;
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-2 position-relative">
+                    <i class="bi bi-grid-3x3-gap me-2"></i>Seat Applications
+                </h2>
+                <p class="mb-0 opacity-75">Review and manage seat-based applications for @hall?.HallName</p>
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <i class="bi bi-hourglass-split"></i>
+                        <div>
+                            <div class="stat-value">@pendingCount</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-check-circle"></i>
+                        <div>
+                            <div class="stat-value">@approvedCount</div>
+                            <div class="stat-label">Approved</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="bi bi-grid-fill"></i>
+                        <div>
+                            <div class="stat-value">@bookedSeats / @totalSeats</div>
+                            <div class="stat-label">Seats Booked</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="@Url.Action("Dashboard", "HallAdmin")" class="btn btn-light btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+            style="border-radius: 12px; border-left: 4px solid #28a745;">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+            style="border-radius: 12px; border-left: 4px solid #dc3545;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs-custom" id="applicationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending"
+                type="button">
+                <i class="bi bi-hourglass-split me-1"></i>Pending
+                <span class="tab-badge">@pendingCount</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">
+                <i class="bi bi-check-circle me-1"></i>Approved
+                <span class="tab-badge">@approvedCount</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button">
+                <i class="bi bi-x-circle me-1"></i>Rejected
+                <span class="tab-badge">@rejectedCount</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">
+                <i class="bi bi-list-ul me-1"></i>All
+                <span class="tab-badge">@(Model?.Count ?? 0)</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput"
+                        placeholder="Search by student ID, name, or room...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="seatTypeFilter">
+                    <option value="">All Seat Types</option>
+                    <option value="WINDOW_LEFT">Window - Left</option>
+                    <option value="WINDOW_RIGHT">Window - Right</option>
+                    <option value="DOOR_LEFT">Door - Left</option>
+                    <option value="DOOR_RIGHT">Door - Right</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="sortBy">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="student">By Student</option>
+                    <option value="room">By Room</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="text-muted" id="resultCount">
+                    <i class="bi bi-funnel me-1"></i>Showing all applications
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="applicationTabsContent">
+        <!-- Pending Tab -->
+        <div class="tab-pane fade show active" id="pending" role="tabpanel">
+            @{
+                var pendingApps = Model?.Where(a => a.Status == "Pending").ToList();
+            }
+            @if (pendingApps != null && pendingApps.Any())
+            {
+                <div class="row" id="pendingGrid">
+                    @foreach (var app in pendingApps.OrderByDescending(a => a.ApplicationDate))
+                    {
+                        @await Html.PartialAsync("_SeatApplicationCard", app)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3 class="mt-3">No Pending Applications</h3>
+                    <p class="text-muted">All seat applications have been processed.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Approved Tab -->
+        <div class="tab-pane fade" id="approved" role="tabpanel">
+            @{
+                var approvedApps = Model?.Where(a => a.Status == "Approved").ToList();
+            }
+            @if (approvedApps != null && approvedApps.Any())
+            {
+                <div class="row" id="approvedGrid">
+                    @foreach (var app in approvedApps.OrderByDescending(a => a.ProcessedDate))
+                    {
+                        @await Html.PartialAsync("_SeatApplicationCard", app)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-check-circle"></i>
+                    <h3 class="mt-3">No Approved Applications</h3>
+                    <p class="text-muted">No applications have been approved yet.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Rejected Tab -->
+        <div class="tab-pane fade" id="rejected" role="tabpanel">
+            @{
+                var rejectedApps = Model?.Where(a => a.Status == "Rejected").ToList();
+            }
+            @if (rejectedApps != null && rejectedApps.Any())
+            {
+                <div class="row" id="rejectedGrid">
+                    @foreach (var app in rejectedApps.OrderByDescending(a => a.ProcessedDate))
+                    {
+                        @await Html.PartialAsync("_SeatApplicationCard", app)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-x-circle"></i>
+                    <h3 class="mt-3">No Rejected Applications</h3>
+                    <p class="text-muted">No applications have been rejected.</p>
+                </div>
+            }
+        </div>
+
+        <!-- All Tab -->
+        <div class="tab-pane fade" id="all" role="tabpanel">
+            @if (Model != null && Model.Any())
+            {
+                <div class="row" id="allGrid">
+                    @foreach (var app in Model.OrderByDescending(a => a.ApplicationDate))
+                    {
+                        @await Html.PartialAsync("_SeatApplicationCard", app)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3 class="mt-3">No Applications</h3>
+                    <p class="text-muted">No seat applications have been submitted yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const seatTypeFilter = document.getElementById('seatTypeFilter');
+            const sortBy = document.getElementById('sortBy');
+
+            function filterCards() {
+                const searchTerm = searchInput?.value.toLowerCase() || '';
+                const seatType = seatTypeFilter?.value || '';
+                const activeTab = document.querySelector('.tab-pane.active');
+                const cards = activeTab?.querySelectorAll('.app-card-wrapper') || [];
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const studentId = card.dataset.studentId?.toLowerCase() || '';
+                    const studentName = card.dataset.studentName?.toLowerCase() || '';
+                    const roomNumber = card.dataset.roomNumber?.toLowerCase() || '';
+                    const cardSeatType = card.dataset.seatType || '';
+
+                    const matchesSearch = studentId.includes(searchTerm) ||
+                        studentName.includes(searchTerm) ||
+                        roomNumber.includes(searchTerm);
+                    const matchesSeatType = !seatType || cardSeatType === seatType;
+
+                    if (matchesSearch && matchesSeatType) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                document.getElementById('resultCount').innerHTML =
+                    `<i class="bi bi-funnel me-1"></i>Showing ${visibleCount} applications`;
+            }
+
+            searchInput?.addEventListener('input', filterCards);
+            seatTypeFilter?.addEventListener('change', filterCards);
+
+            // Re-filter when tab changes
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', filterCards);
+            });
+        });
+    </script>
+}

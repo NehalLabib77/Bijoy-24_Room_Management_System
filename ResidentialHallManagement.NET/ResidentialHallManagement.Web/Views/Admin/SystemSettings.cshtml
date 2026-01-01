@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">System Settings</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active">Settings</li>
+    </ol>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-gear me-1"></i>
+                    General Settings
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="systemName" class="form-label">System Name</label>
+                            <input type="text" class="form-control" id="systemName"
+                                value="BIJOY-24 Residential Hall Management System" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="maxRoomCapacity" class="form-label">Default Room Capacity</label>
+                            <input type="number" class="form-control" id="maxRoomCapacity" value="4">
+                        </div>
+                        <div class="mb-3">
+                            <label for="maintenanceInterval" class="form-label">Maintenance Check Interval
+                                (days)</label>
+                            <input type="number" class="form-control" id="maintenanceInterval" value="30">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-database me-1"></i>
+                    Database Management
+                </div>
+                <div class="card-body">
+                    <p>Database maintenance and backup operations.</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-warning" type="button">Backup Database</button>
+                        <button class="btn btn-info" type="button">View Database Stats</button>
+                        <button class="btn btn-danger" type="button">Clear Old Logs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

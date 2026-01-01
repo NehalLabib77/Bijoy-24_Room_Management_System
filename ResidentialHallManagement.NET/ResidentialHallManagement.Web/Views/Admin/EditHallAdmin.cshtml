@@ -1,0 +1,69 @@
+@model ResidentialHallManagement.Core.Entities.HallAdmin
+@{
+    ViewData["Title"] = "Edit Hall Admin";
+    var halls = ViewBag.Halls as List<ResidentialHallManagement.Core.Entities.Hall> ?? new
+    List<ResidentialHallManagement.Core.Entities.Hall>();
+}
+
+<div class="container-fluid mt-4">
+    <h2>Edit Hall Admin</h2>
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="EditHallAdmin" method="post">
+                <input type="hidden" asp-for="HallAdminId" />
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="AdminName" class="form-label">Name</label>
+                        <input asp-for="AdminName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="AdminRole" class="form-label">Role</label>
+                        <input asp-for="AdminRole" class="form-control" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="StartDate" class="form-label">Start Date</label>
+                        <input asp-for="StartDate" class="form-control" type="date" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndDate" class="form-label">End Date</label>
+                        <input asp-for="EndDate" class="form-control" type="date" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="HallId" class="form-label">Hall</label>
+                        <select asp-for="HallId" class="form-select">
+                            @foreach (var h in halls)
+                            {
+                                <option value="@h.HallId" selected="@(h.HallId == Model.HallId ? "selected" : null)">
+                                    @h.HallName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="ManageHallAdmins" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

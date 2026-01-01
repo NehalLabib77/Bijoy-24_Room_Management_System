@@ -1,0 +1,397 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+
+    .admin-hero h1 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .stat-card-modern {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card-modern.halls::before {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-card-modern.admins::before {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .stat-card-modern.boarders::before {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-card-modern.rooms::before {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+
+    .stat-icon.halls {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        color: #667eea;
+    }
+
+    .stat-icon.admins {
+        background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.15) 100%);
+        color: #f093fb;
+    }
+
+    .stat-icon.boarders {
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%);
+        color: #4facfe;
+    }
+
+    .stat-icon.rooms {
+        background: linear-gradient(135deg, rgba(67, 233, 123, 0.15) 0%, rgba(56, 249, 215, 0.15) 100%);
+        color: #43e97b;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #718096;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .stat-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #667eea;
+        font-weight: 600;
+        text-decoration: none;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-link:hover {
+        gap: 10px;
+        color: #764ba2;
+    }
+
+    .quick-action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        color: inherit;
+    }
+
+    .action-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 12px;
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Hero Section -->
+    <div class="admin-hero">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+                <p class="mb-0 opacity-75">Welcome back! Manage your residential hall system from here.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-modern halls">
+                <div class="stat-icon halls">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stat-value">@ViewBag.TotalHalls</div>
+                <div class="stat-label">Total Halls</div>
+                <a class="stat-link" asp-controller="Hall" asp-action="Index">
+                    View Details <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-modern admins">
+                <div class="stat-icon admins">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-value">@ViewBag.TotalHallAdmins</div>
+                <div class="stat-label">Hall Admins</div>
+                <a class="stat-link" asp-controller="Admin" asp-action="ManageHallAdmins">
+                    View Details <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-modern boarders">
+                <div class="stat-icon boarders">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="stat-value">@ViewBag.TotalStudents</div>
+                <div class="stat-label">Registered Students</div>
+                <a class="stat-link" asp-controller="Admin" asp-action="ManageBoarderRegistry">
+                    View Details <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-modern rooms">
+                <div class="stat-icon rooms">
+                    <i class="bi bi-door-closed"></i>
+                </div>
+                <div class="stat-value">@ViewBag.TotalRooms</div>
+                <div class="stat-label">Total Rooms</div>
+                <a class="stat-link" asp-controller="Admin" asp-action="ManageRooms">
+                    View Details <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h4 class="mb-3"><i class="bi bi-lightning-charge text-warning"></i> Quick Actions</h4>
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <a class="quick-action-card" asp-controller="Admin" asp-action="ManageHallAdmins">
+                <div class="action-icon" style="background: rgba(102, 126, 234, 0.1); color: #667eea;">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+                <h6 class="mb-1">Manage Hall Admins</h6>
+                <small class="text-muted">Add or edit hall administrators</small>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a class="quick-action-card" asp-controller="Admin" asp-action="ManageBoarderRegistry">
+                <div class="action-icon" style="background: rgba(40, 167, 69, 0.1); color: #28a745;">
+                    <i class="bi bi-list-check"></i>
+                </div>
+                <h6 class="mb-1">Boarder Registry</h6>
+                <small class="text-muted">Manage student registrations</small>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a class="quick-action-card" asp-controller="Admin" asp-action="ManageRooms">
+                <div class="action-icon" style="background: rgba(23, 162, 184, 0.1); color: #17a2b8;">
+                    <i class="bi bi-door-open"></i>
+                </div>
+                <h6 class="mb-1">Manage Rooms</h6>
+                <small class="text-muted">View and edit room details</small>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a class="quick-action-card" asp-controller="Admin" asp-action="ViewDatabaseStats">
+                <div class="action-icon" style="background: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                    <i class="bi bi-bar-chart"></i>
+                </div>
+                <h6 class="mb-1">Database Stats</h6>
+                <small class="text-muted">View system statistics</small>
+            </a>
+        </div>
+    </div>
+
+    <!-- Floating System Menu -->
+    <div class="floating-menu-container">
+        <button class="floating-menu-btn" id="systemMenuBtn" title="System Menu">
+            <i class="bi bi-gear-fill"></i>
+        </button>
+        <div class="floating-menu" id="systemMenu">
+            <div class="menu-header">
+                <h6>Database Management</h6>
+            </div>
+            <a class="menu-item" asp-controller="Admin" asp-action="BackupDatabase">
+                <i class="bi bi-cloud-arrow-down"></i> Backup Database
+            </a>
+            <a class="menu-item" asp-controller="Admin" asp-action="ViewDatabaseStats">
+                <i class="bi bi-bar-chart"></i> View Database Stats
+            </a>
+            <a class="menu-item" asp-controller="Admin" asp-action="ClearOldLogs">
+                <i class="bi bi-trash"></i> Clear Old Logs
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .floating-menu-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+
+    .floating-menu-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .floating-menu-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .floating-menu-btn.active {
+        transform: rotate(45deg);
+    }
+
+    .floating-menu {
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        min-width: 250px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .floating-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .menu-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .menu-header h6 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 14px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        font-size: 14px;
+    }
+
+    .menu-item:hover {
+        background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+        border-left-color: #667eea;
+        color: #667eea;
+    }
+
+    .menu-item i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuBtn = document.getElementById('systemMenuBtn');
+        const menu = document.getElementById('systemMenu');
+
+        menuBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            menuBtn.classList.toggle('active');
+            menu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function () {
+            if (menu.classList.contains('show')) {
+                menuBtn.classList.remove('active');
+                menu.classList.remove('show');
+            }
+        });
+
+        menu.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    });
+</script>

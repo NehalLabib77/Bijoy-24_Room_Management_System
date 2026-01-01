@@ -1,0 +1,40 @@
+@model List<ResidentialHallManagement.Core.Entities.BoarderRegistry>
+
+@{
+    ViewData["Title"] = "Boarder Registry";
+}
+
+<div class="container">
+    <h3>Boarder Registry</h3>
+    <a asp-action="Create" class="btn btn-primary mb-2">Create New</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Boarder No</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model)
+            {
+                <tr>
+                    <td>@b.BoarderNo</td>
+                    <td>@b.Name</td>
+                    <td>@b.Status</td>
+                    <td>@b.StudentId</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@b.BoarderNo" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@b.BoarderNo" class="btn btn-sm btn-warning">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@b.BoarderNo" method="post" style="display:inline-block;">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Delete boarder?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,139 @@
+@model List<ResidentialHallManagement.Web.ViewModels.RoomStudentViewModel>
+@{
+    ViewData["Title"] = "Room Students Management";
+}
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2>Room Students Management</h2>
+            <p class="text-muted">View students assigned to each room</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-controller="HallAdmin" asp-action="Dashboard" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Hall Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Filter by Hall:</label>
+                    <select name="hallId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Halls</option>
+                        @foreach (var hall in ViewBag.Halls)
+                        {
+                            <option value="@hall.HallId" selected="@(ViewBag.SelectedHallId == hall.HallId)">
+                                @hall.HallName
+                            </option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rooms List -->
+    <div class="row">
+        @foreach (var room in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">@room.RoomName</h5>
+                        <small>@room.HallName</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Room Details:</strong>
+                            <ul class="list-unstyled ms-2">
+                                @if (!string.IsNullOrEmpty(room.RoomNumber))
+                                {
+                                    <li><strong>Room #:</strong> @room.RoomNumber</li>
+                                }
+                                @if (!string.IsNullOrEmpty(room.Wing))
+                                {
+                                    <li><strong>Wing:</strong> @room.Wing</li>
+                                }
+                                @if (!string.IsNullOrEmpty(room.Block))
+                                {
+                                    <li><strong>Block:</strong> @room.Block</li>
+                                }
+                                @if (room.Floor.HasValue)
+                                {
+                                    <li><strong>Floor:</strong> @room.Floor</li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Occupancy:</strong>
+                            <div class="progress mt-2" style="height: 25px;">
+                                @{
+                                    var occupancyPercent = room.Capacity > 0 ? (room.OccupiedSlots * 100.0 / room.Capacity) : 0;
+                                    var progressClass = occupancyPercent >= 100 ? "bg-danger" : occupancyPercent >= 80 ? "bg-warning" : "bg-success";
+                                }
+                                <div class="progress-bar @progressClass" role="progressbar" 
+                                     style="width: @occupancyPercent%" 
+                                     aria-valuenow="@room.OccupiedSlots" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="@room.Capacity">
+                                    @room.OccupiedSlots / @room.Capacity
+                                </div>
+                            </div>
+                            <small class="text-muted">@room.AvailableSlots slots available</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Current Students:</strong>
+                            @if (room.Students.Any())
+                            {
+                                <ul class="list-unstyled ms-2">
+                                    @foreach (var student in room.Students.Take(3))
+                                    {
+                                        <li>
+                                            <i class="bi bi-person-fill"></i> @student.StudentName
+                                            <span class="badge bg-info">@student.BoarderNo</span>
+                                        </li>
+                                    }
+                                    @if (room.Students.Count > 3)
+                                    {
+                                        <li class="text-muted">... and @(room.Students.Count - 3) more</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted ms-2">No students assigned</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-action="Details" asp-route-roomId="@room.RoomId" asp-route-hallId="@room.HallId" 
+                           class="btn btn-sm btn-primary w-100">
+                            <i class="bi bi-eye"></i> View All Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No rooms found.
+        </div>
+    }
+</div>
