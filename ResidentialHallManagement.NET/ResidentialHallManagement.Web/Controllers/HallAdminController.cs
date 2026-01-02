@@ -341,8 +341,16 @@ public class HallAdminController : Controller
         // Get just the students for backward compatibility
         var roomMembers = roomAssignments.Select(ra => ra.Student!).ToList();
 
+        // Get all seats for this room with student details
+        var seats = await _context.Seats
+            .Include(s => s.BookedByStudent)
+            .Where(s => s.RoomId == roomId && s.HallId == hallId)
+            .OrderBy(s => s.SeatNumber)
+            .ToListAsync();
+
         ViewBag.RoomMembers = roomMembers;
         ViewBag.RoomAssignments = roomAssignments;
+        ViewBag.Seats = seats;
 
         return View(room);
     }

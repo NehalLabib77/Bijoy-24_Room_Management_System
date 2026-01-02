@@ -102,10 +102,10 @@ public class Seat
     public DateTime? HeldUntil { get; set; }
 
     [Column("CREATED_AT")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Column("UPDATED_AT")]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
     [ForeignKey("RoomId,HallId")]

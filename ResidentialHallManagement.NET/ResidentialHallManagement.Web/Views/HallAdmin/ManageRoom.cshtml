@@ -1,4 +1,5 @@
 @model ResidentialHallManagement.Core.Entities.Room
+@using ResidentialHallManagement.Core.Entities
 
 @{
     ViewData["Title"] = "Room Details";
@@ -6,7 +7,197 @@
     List<ResidentialHallManagement.Core.Entities.Student>();
     var roomAssignments = ViewBag.RoomAssignments as List<ResidentialHallManagement.Core.Entities.RoomAssignment> ?? new
     List<ResidentialHallManagement.Core.Entities.RoomAssignment>();
+    var seats = ViewBag.Seats as List<Seat> ?? new List<Seat>();
+
+    // Organize seats by position
+    var windowLeftSeat = seats.FirstOrDefault(s => s.SeatType == SeatTypes.WINDOW_LEFT);
+    var windowRightSeat = seats.FirstOrDefault(s => s.SeatType == SeatTypes.WINDOW_RIGHT);
+    var doorLeftSeat = seats.FirstOrDefault(s => s.SeatType == SeatTypes.DOOR_LEFT);
+    var doorRightSeat = seats.FirstOrDefault(s => s.SeatType == SeatTypes.DOOR_RIGHT);
 }
+
+<style>
+    .room-layout-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        min-height: 450px;
+        border: 3px solid #dee2e6;
+    }
+
+    .room-label {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 25px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .side-label {
+        position: absolute;
+        background: white;
+        padding: 8px 15px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+    }
+
+    .window-label {
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #0d6efd;
+        border: 2px solid #0d6efd;
+    }
+
+    .door-label {
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #198754;
+        border: 2px solid #198754;
+    }
+
+    .seat-row {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        padding: 15px;
+    }
+
+    .seat-card {
+        width: 220px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .seat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .seat-card.booked {
+        border: 3px solid #dc3545;
+    }
+
+    .seat-card.available {
+        border: 3px solid #28a745;
+    }
+
+    .seat-card.pending {
+        border: 3px solid #ffc107;
+    }
+
+    .seat-header {
+        padding: 12px 15px;
+        font-weight: bold;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .seat-header.booked {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .seat-header.available {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        color: white;
+    }
+
+    .seat-header.pending {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+    }
+
+    .seat-body {
+        padding: 15px;
+        min-height: 140px;
+    }
+
+    .student-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 auto 10px;
+    }
+
+    .student-info {
+        text-align: center;
+    }
+
+    .student-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .student-id {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 3px;
+    }
+
+    .student-dept {
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    .empty-seat {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .empty-seat i {
+        font-size: 40px;
+        color: #dee2e6;
+    }
+
+    .empty-seat p {
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+    .seat-number-badge {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .divider-line {
+        height: 2px;
+        background: linear-gradient(to right, transparent, #dee2e6, transparent);
+        margin: 10px 40px;
+    }
+</style>
 
 <div class="container-fluid mt-4">
     <div class="row mb-4">
@@ -130,67 +321,138 @@
         </div>
     </div>
 
-    <!-- Room Members Card -->
+    <!-- Interactive Room Layout with Seats -->
     <div class="card mb-4 shadow-sm">
-        <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-people-fill"></i> Room Members (@roomMembers.Count /
-                    @Model.RoomCapacity)</h5>
-            </div>
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <h5 class="mb-0"><i class="bi bi-grid-3x3-gap"></i> Room Layout - Seat Allocation</h5>
         </div>
-        <div class="card-body">
-            @if (roomMembers.Any())
+        <div class="card-body p-4">
+            @if (seats.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Faculty</th>
-                                <th>Semester</th>
-                                <th>Mobile</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var student in roomMembers)
-                            {
-                                var assignment = roomAssignments.FirstOrDefault(ra => ra.StudentId == student.StudentId);
-                                <tr>
-                                    <td><strong>@student.StudentId</strong></td>
-                                    <td>@student.StudentName</td>
-                                    <td>@student.Faculty</td>
-                                    <td>@student.Semester</td>
-                                    <td>@student.Mobile</td>
-                                    <td><span class="badge bg-success">@student.Status</span></td>
-                                    <td>
-                                        @if (assignment != null)
-                                        {
-                                            <form method="post" asp-action="DeleteRoomAssignment" asp-controller="HallAdmin"
-                                                onsubmit="return confirm('Are you sure you want to remove @student.StudentName from this room?');">
-                                                <input type="hidden" name="assignmentId" value="@assignment.AssignmentId" />
-                                                <input type="hidden" name="roomId" value="@Model.RoomId" />
-                                                <input type="hidden" name="hallId" value="@Model.HallId" />
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="bi bi-trash"></i> Remove
-                                                </button>
-                                            </form>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="room-layout-container">
+                    <div class="room-label">
+                        <i class="bi bi-door-closed"></i> Room @(Model.RoomNumber ?? Model.RoomId)
+                    </div>
+
+                    <div class="side-label window-label">
+                        <i class="bi bi-window"></i> Window Side
+                    </div>
+
+                    <!-- Window Side Seats -->
+                    <div class="seat-row mt-5">
+                        @{
+                            RenderSeatCard(windowLeftSeat, "Seat 1 - Window Left");
+                        }
+                        @{
+                            RenderSeatCard(windowRightSeat, "Seat 2 - Window Right");
+                        }
+                    </div>
+
+                    <div class="divider-line"></div>
+
+                    <!-- Door Side Seats -->
+                    <div class="seat-row mb-5">
+                        @{
+                            RenderSeatCard(doorLeftSeat, "Seat 3 - Door Left");
+                        }
+                        @{
+                            RenderSeatCard(doorRightSeat, "Seat 4 - Door Right");
+                        }
+                    </div>
+
+                    <div class="side-label door-label">
+                        <i class="bi bi-door-open"></i> Door Side
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="d-flex justify-content-center gap-4 mt-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 20px; height: 20px; background: #dc3545; border-radius: 4px;"></div>
+                        <small class="text-muted">Booked</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 20px; height: 20px; background: #28a745; border-radius: 4px;"></div>
+                        <small class="text-muted">Available</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 20px; height: 20px; background: #ffc107; border-radius: 4px;"></div>
+                        <small class="text-muted">Pending Approval</small>
+                    </div>
                 </div>
             }
             else
             {
-                <div class="alert alert-info mb-0">
-                    <i class="bi bi-info-circle"></i> No students currently assigned to this room.
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> No seats have been configured for this room yet.
                 </div>
             }
         </div>
     </div>
 </div>
+
+@functions {
+    void RenderSeatCard(Seat? seat, string seatLabel)
+    {
+        var statusClass = seat?.Status switch
+        {
+            SeatStatuses.Booked => "booked",
+            SeatStatuses.Pending or SeatStatuses.Reserved => "pending",
+            _ => "available"
+        };
+
+        var student = seat?.BookedByStudent;
+        var seatNumber = seat?.SeatNumber ?? 0;
+
+        <div class="seat-card @statusClass">
+            <div class="seat-header @statusClass">
+                <div class="seat-number-badge">@seatNumber</div>
+                <span>@seatLabel</span>
+                @if (seat?.Status == SeatStatuses.Booked)
+                {
+                    <i class="bi bi-lock-fill ms-auto"></i>
+                }
+                else if (seat?.Status == SeatStatuses.Pending)
+                {
+                    <i class="bi bi-hourglass-split ms-auto"></i>
+                }
+                else
+                {
+                    <i class="bi bi-unlock ms-auto"></i>
+                }
+            </div>
+            <div class="seat-body">
+                @if (student != null)
+                {
+                    var initials = string.Join("", (student.StudentName ?? "?").Split(' ').Take(2).Select(n => n.FirstOrDefault()));
+                    <div class="student-avatar">@initials</div>
+                    <div class="student-info">
+                        <div class="student-name">@student.StudentName</div>
+                        <div class="student-id"><i class="bi bi-person-badge"></i> @student.StudentId</div>
+                        <div class="student-dept"><i class="bi bi-mortarboard"></i> @(student.Department ?? student.Faculty ??
+                                            "N/A")</div>
+                        @if (!string.IsNullOrEmpty(student.Mobile))
+                        {
+                            <div class="student-dept"><i class="bi bi-telephone"></i> @student.Mobile</div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-seat">
+                        @if (seat?.Status == SeatStatuses.Pending)
+                        {
+                            <i class="bi bi-hourglass-split text-warning"></i>
+                            <p class="text-warning mb-0">Application Pending</p>
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-plus"></i>
+                            <p>Seat Available</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

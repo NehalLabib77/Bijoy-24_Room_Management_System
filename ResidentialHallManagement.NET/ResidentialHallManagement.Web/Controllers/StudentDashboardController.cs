@@ -524,48 +524,74 @@ namespace ResidentialHallManagement.Web.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Get student's current room assignment using RoomAssignment
-            var currentAssignment = await _context.RoomAssignments
-                .Include(ra => ra.Hall)
-                .Where(ra => ra.StudentId == studentId && ra.Status == "Active")
-                .OrderByDescending(ra => ra.AssignmentDate)
-                .FirstOrDefaultAsync();
+            // First check if student has a booked seat
+            var bookedSeat = await _context.Seats
+                .Include(s => s.Room)
+                    .ThenInclude(r => r!.Hall)
+                .FirstOrDefaultAsync(s => s.BookedByStudentId == studentId && s.Status == "Booked");
 
-            if (currentAssignment == null)
+            Room? roomData = null;
+            int? hallId = null;
+            string? hallName = null;
+            string? roomId = null;
+
+            if (bookedSeat != null)
             {
-                TempData["Error"] = "You are not currently assigned to any room.";
+                roomData = bookedSeat.Room;
+                hallId = bookedSeat.HallId;
+                hallName = bookedSeat.Room?.Hall?.HallName;
+                roomId = bookedSeat.RoomId;
+            }
+            else
+            {
+                // Fallback to room assignment if no seat booking
+                var currentAssignment = await _context.RoomAssignments
+                    .Include(ra => ra.Hall)
+                    .Where(ra => ra.StudentId == studentId && ra.Status == "Active")
+                    .OrderByDescending(ra => ra.AssignmentDate)
+                    .FirstOrDefaultAsync();
+
+                if (currentAssignment == null)
+                {
+                    TempData["Error"] = "You are not currently assigned to any room.";
+                    return RedirectToAction("Index");
+                }
+
+                // Get room details from assignment
+                var roomIdentityParts = currentAssignment.RoomIdentity.Split('/');
+                if (roomIdentityParts.Length > 0)
+                {
+                    roomData = await _context.Rooms
+                        .Include(r => r.Hall)
+                        .FirstOrDefaultAsync(r => r.RoomNumber == roomIdentityParts[0] && r.HallId == currentAssignment.HallId);
+                }
+                hallId = currentAssignment.HallId;
+                hallName = currentAssignment.Hall?.HallName;
+                roomId = roomData?.RoomId;
+            }
+
+            if (roomData == null || roomId == null || hallId == null)
+            {
+                TempData["Error"] = "Room information not found.";
                 return RedirectToAction("Index");
             }
 
-            // Get room details
-            var roomIdentityParts = currentAssignment.RoomIdentity.Split('/');
-            Room? roomData = null;
-            if (roomIdentityParts.Length > 0)
-            {
-                roomData = await _context.Rooms
-                    .Include(r => r.Hall)
-                    .FirstOrDefaultAsync(r => r.RoomNumber == roomIdentityParts[0] && r.HallId == currentAssignment.HallId);
-            }
-
-            // Get all active students in the same room (excluding current student)
-            var roommates = await _context.RoomAssignments
-                .Where(ra => ra.RoomIdentity == currentAssignment.RoomIdentity
-                            && ra.HallId == currentAssignment.HallId
-                            && ra.Status == "Active"
-                            && ra.StudentId != studentId)
-                .Include(ra => ra.Student)
-                .Select(ra => ra.Student)
-                .Where(s => s != null)
+            // Get all seats for this room with student details
+            var seats = await _context.Seats
+                .Include(s => s.BookedByStudent)
+                .Where(s => s.RoomId == roomId && s.HallId == hallId)
+                .OrderBy(s => s.SeatNumber)
                 .ToListAsync();
 
-            ViewBag.RoomIdentity = currentAssignment.RoomIdentity;
-            ViewBag.HallId = currentAssignment.HallId;
-            ViewBag.HallName = currentAssignment.Hall?.HallName;
+            ViewBag.RoomId = roomId;
+            ViewBag.HallId = hallId;
+            ViewBag.HallName = hallName;
             ViewBag.RoomData = roomData;
             ViewBag.CurrentStudent = currentStudent;
-            ViewBag.CurrentAssignment = currentAssignment;
+            ViewBag.CurrentStudentId = studentId;
+            ViewBag.Seats = seats;
 
-            return View(roommates);
+            return View(seats);
         }
     }
 }
